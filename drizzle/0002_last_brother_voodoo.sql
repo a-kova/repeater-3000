@@ -1,0 +1,1 @@
+CREATE INDEX "chat_id_word_idx" ON "cards" USING btree ("chat_id","word");
