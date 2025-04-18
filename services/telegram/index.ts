@@ -53,10 +53,6 @@ function initializeBot() {
     ctx.scene.enter('notificationTime')
   );
 
-  bot.command('test', async (ctx) => {
-    notifyUser(341627212, 1);
-  });
-
   bot.command('quit', async (ctx) => {
     await db.delete(cardsTable).where(eq(cardsTable.chat_id, ctx.chat.id));
     await db.delete(chatsTable).where(eq(chatsTable.id, ctx.chat.id));
@@ -97,7 +93,7 @@ export async function attachTelegrafToServer(server: FastifyInstance) {
 
   server.post(`/telegraf/${bot.secretPathComponent()}`, async (req, reply) => {
     reply.hijack();
-    // @ts-ignore
+    // @ts-expect-error: req.raw is not a standard property
     req.raw.body = req.body;
     await webhook(req.raw, reply.raw);
   });

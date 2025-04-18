@@ -37,7 +37,7 @@ scene.enter(async (ctx) => {
 scene.on('text', async (ctx) => {
   await ctx.sendChatAction('typing');
 
-  if (!ratingMap.hasOwnProperty(ctx.text)) {
+  if (!Object.prototype.hasOwnProperty.call(ratingMap, ctx.text)) {
     await ctx.reply('Please select a value.');
     return;
   }
