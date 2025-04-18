@@ -1,28 +1,61 @@
 import fastify from 'fastify';
 import { attachTelegrafToServer } from './services/telegram';
+import { cardsTable, db } from './services/db';
+import { createNewFSRSData } from './services/fsrs';
+import { startCronJobs } from './services/cron';
+import { convertFSRSDataToCardData } from './helpers';
+import { and, eq } from 'drizzle-orm';
 
 const server = fastify({
-  logger: true,
+  logger: process.env.NODE_ENV !== 'production',
 });
 
-(async function () {
+async function run() {
   await attachTelegrafToServer(server);
 
-  server.get('/health', async () => {
-    return { status: 'ok' };
+  server.post<{
+    Body: { chat_id: number; word: string; meaning?: string; example?: string };
+  }>('/api/words', async (req, reply) => {
+    const chat = await db.query.chatsTable.findFirst({
+      where: (table, { eq }) => eq(table.id, req.body.chat_id),
+    });
+
+    if (!chat || !chat.is_paid) {
+      reply.status(403).send({ error: 'Not authorized' });
+      return;
+    }
+
+    await db.insert(cardsTable).values({
+      ...req.body,
+      ...convertFSRSDataToCardData(createNewFSRSData()),
+    });
+
+    reply.status(201).send({ message: 'Word added successfully' });
   });
 
-  // server.get('/api/send-words', async () => {
-  //   const cards = await db.query.cardsTable.findMany({
-  //     where: (table, { gte }) => gte(table.due, new Date()),
-  //   });
+  server.delete<{
+    Body: { chat_id: number; word: string };
+  }>('/api/words', async (req, reply) => {
+    const chat = await db.query.chatsTable.findFirst({
+      where: (table, { eq }) => eq(table.id, req.body.chat_id),
+    });
 
-  //   if (!page) {
-  //     return { message: 'No words found for today.' };
-  //   }
+    if (!chat || !chat.is_paid) {
+      reply.status(403).send({ error: 'Not authorized' });
+      return;
+    }
 
-  //   return { word: page.Word };
-  // });
+    await db
+      .delete(cardsTable)
+      .where(
+        and(
+          eq(cardsTable.chat_id, req.body.chat_id),
+          eq(cardsTable.word, req.body.word)
+        )
+      );
+
+    reply.status(200).send({ message: 'Word deleted successfully' });
+  });
 
   server.listen({ port: 8080 }, (err, address) => {
     if (err) {
@@ -32,4 +65,11 @@ const server = fastify({
 
     console.log(`Server listening at ${address}`);
   });
-})();
+
+  startCronJobs();
+}
+
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

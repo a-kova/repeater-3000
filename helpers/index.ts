@@ -13,17 +13,14 @@ export function toSnakeCase(str: string) {
   return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 }
 
-export function removeSpecialChars(str: string) {
-  return str.replace(/[^a-zA-Z0-9_]/g, '');
-}
-
 export function convertFSRSDataToCardData(
   data: Card
-): Partial<typeof cardsTable.$inferSelect> {
+): Pick<typeof cardsTable.$inferSelect, keyof Card> {
   return {
     ...data,
     stability: data.stability.toString(),
     difficulty: data.difficulty.toString(),
+    last_review: data.last_review || null,
   };
 }
 

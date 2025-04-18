@@ -1,22 +1,31 @@
 import { FastifyInstance } from 'fastify';
-import { Context, Markup, Scenes, session, Telegraf } from 'telegraf';
-import { addWordScene, removeWordScene } from './scenes';
-import { cardsTable, chatsTable, db } from '../db';
-import { updateFSRSData } from '../fsrs';
-import { Rating } from 'ts-fsrs';
-import { eq } from 'drizzle-orm';
+import { Markup, Scenes, session, Telegraf } from 'telegraf';
 import {
-  convertFSRSDataToCardData,
-  getFSRSDataFromCardData,
-} from '../../helpers';
-import { addRateWordAction } from './actions/rateWord';
+  addWordScene,
+  removeWordScene,
+  notificationTimeScene,
+  repeatWordsScene,
+} from './scenes';
+import { cardsTable, chatsTable, db } from '../db';
+import { eq } from 'drizzle-orm';
 
-let bot: Telegraf<Scenes.SceneContext>;
+interface CustomSceneSession extends Scenes.SceneSessionData {
+  cards?: (typeof cardsTable.$inferSelect)[];
+}
+
+export type CustomContext = Scenes.SceneContext<CustomSceneSession>;
+
+let bot: Telegraf<CustomContext>;
 
 function initializeBot() {
   bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
-  const stage = new Scenes.Stage([addWordScene, removeWordScene]);
+  const stage = new Scenes.Stage<CustomContext>([
+    addWordScene,
+    removeWordScene,
+    notificationTimeScene,
+    repeatWordsScene,
+  ]);
 
   bot.use(session());
   bot.use(stage.middleware());
@@ -32,24 +41,49 @@ function initializeBot() {
 
   bot.help((ctx) =>
     ctx.reply(
-      'Available commands: /start, /help, /add_word, /remove_word, /quit'
+      'Available commands: /start, /help, /notification_time, /add_word, /remove_word, /quit'
     )
   );
 
   bot.command('add_word', (ctx) => ctx.scene.enter('addWord'));
+
   bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
 
-  bot.command('test', async (ctx) => {
-    checkWord('saucy', 341627212);
-  });
+  bot.command('notification_time', (ctx) =>
+    ctx.scene.enter('notificationTime')
+  );
 
-  addRateWordAction(bot);
+  bot.command('test', async (ctx) => {
+    notifyUser(341627212, 1);
+  });
 
   bot.command('quit', async (ctx) => {
-    await db.delete(chatsTable).where(eq(chatsTable.id, ctx.chat.id));
     await db.delete(cardsTable).where(eq(cardsTable.chat_id, ctx.chat.id));
+    await db.delete(chatsTable).where(eq(chatsTable.id, ctx.chat.id));
     await ctx.leaveChat();
   });
+
+  bot.action('start_repeat', async (ctx) => {
+    const chatId = ctx.chat!.id;
+    const now = new Date();
+
+    const cards = await db.query.cardsTable.findMany({
+      where: (table, { and, eq, lte }) =>
+        and(eq(table.chat_id, chatId), lte(table.last_review, now)),
+    });
+
+    if (cards.length === 0) {
+      return await ctx.reply('No words for today.');
+    }
+
+    ctx.scene.session.cards = cards;
+
+    await ctx.scene.enter('repeatWords');
+  });
+
+  bot.action('postpone_repeat', (ctx) =>
+    ctx.reply('Okay, I will remind you tomorrow.')
+  );
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));
@@ -69,14 +103,20 @@ export async function attachTelegrafToServer(server: FastifyInstance) {
   });
 }
 
-export async function checkWord(word: string, chatId: number) {
-  bot.telegram.sendMessage(chatId, `Remember this word? <b>${word}</b>`, {
+export async function notifyUser(chatId: number, wordsCount: number) {
+  if (wordsCount === 0) {
+    return;
+  }
+
+  const message = `You have <b>${wordsCount} word${
+    wordsCount > 1 ? 's' : ''
+  }</b> to repeat today. Ready?`;
+
+  bot.telegram.sendMessage(chatId, message, {
     parse_mode: 'HTML',
     ...Markup.inlineKeyboard([
-      Markup.button.callback('No', `rate:${Rating.Again}:${word}`),
-      Markup.button.callback('Hardly', `rate:${Rating.Hard}:${word}`),
-      Markup.button.callback('Yes', `rate:${Rating.Good}:${word}`),
-      Markup.button.callback('Easy', `rate:${Rating.Easy}:${word}`),
+      Markup.button.callback('No', 'postpone_repeat'),
+      Markup.button.callback('Yes', 'start_repeat'),
     ]),
   });
 }

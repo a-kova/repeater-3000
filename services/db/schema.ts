@@ -12,6 +12,9 @@ export const chatsTable = pgTable('chats', {
   id: integer('id').primaryKey(),
   is_active: boolean('is_active').notNull().default(true),
   is_paid: boolean('is_paid').notNull().default(false),
+  notification_time: varchar('notification_time', { length: 255 }).$default(
+    () => '12:00'
+  ),
 });
 
 export const cardsTable = pgTable(
@@ -37,5 +40,9 @@ export const cardsTable = pgTable(
   },
   (table) => ({
     chatIdWordIdx: index('chat_id_word_idx').on(table.chat_id, table.word),
+    chatIdLastReviewIdx: index('chat_id_last_review_idx').on(
+      table.chat_id,
+      table.last_review
+    ),
   })
 );

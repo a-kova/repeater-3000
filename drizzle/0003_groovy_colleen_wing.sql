@@ -1,0 +1,1 @@
+ALTER TABLE "chats" ADD COLUMN "notification_time" varchar(255);
