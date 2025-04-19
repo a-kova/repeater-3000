@@ -43,8 +43,8 @@ function initializeBot() {
       'Your pocket-sized word trainer — always ready to help! ⚡️',
       '',
       'Here’s what I can do for you:',
-      '🕒 Remind you to study — at a time you choose',
-      '📝 Help you learn the words you pick',
+      '🕒 Remind you to study — at a time <i>you</i> choose',
+      '📝 Help you learn the words <i>you</i> pick',
       '',
       'Type /add_word to send me a word to get rolling, or /time to set your reminder! 🎯',
     ];
@@ -69,14 +69,19 @@ function initializeBot() {
 
     const cards = await db.query.cardsTable.findMany({
       where: (table, { eq }) => eq(table.chat_id, chatId),
-      orderBy: (table) => table.word,
     });
 
     if (cards.length === 0) {
       return await ctx.reply('No words found.');
     }
 
-    await ctx.replyWithHTML(cards.map((card) => card.word).join('\n'));
+    const list = cards
+      .map((card) => card.word)
+      .sort((a, b) => a.replace('to ', '').localeCompare(b.replace('to ', '')))
+      .map((word, index) => `${index + 1}. ${word}`)
+      .join('\n');
+
+    await ctx.replyWithHTML(list);
   });
 
   bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
