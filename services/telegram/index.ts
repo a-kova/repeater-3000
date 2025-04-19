@@ -41,13 +41,30 @@ function initializeBot() {
 
   bot.help((ctx) =>
     ctx.reply(
-      'Available commands: /start, /help, /notification_time, /add_word, /remove_word, /quit'
+      'Available commands: /start, /help, /notification_time, /add_word, /list_words, /remove_word, /quit'
     )
   );
 
   bot.command('add_word', (ctx) => ctx.scene.enter('addWord'));
 
   bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
+
+  bot.command('list_words', async (ctx) => {
+    const chatId = ctx.chat.id;
+
+    await ctx.sendChatAction('typing');
+
+    const cards = await db.query.cardsTable.findMany({
+      where: (table, { eq }) => eq(table.chat_id, chatId),
+      orderBy: (table) => table.word,
+    });
+
+    if (cards.length === 0) {
+      return await ctx.reply('No words found.');
+    }
+
+    await ctx.replyWithHTML(cards.map((card) => card.word).join('\n'));
+  });
 
   bot.command('notification_time', (ctx) =>
     ctx.scene.enter('notificationTime')
