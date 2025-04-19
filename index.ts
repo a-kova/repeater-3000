@@ -13,6 +13,10 @@ const server = fastify({
 async function run() {
   await attachTelegrafToServer(server);
 
+  server.get('/health', async (_req, reply) => {
+    reply.send({ status: 'ok' });
+  });
+
   server.post<{
     Body: { chat_id: number; word: string; meaning?: string; example?: string };
   }>('/api/words', async (req, reply) => {
