@@ -31,17 +31,30 @@ function initializeBot() {
   bot.use(stage.middleware());
 
   bot.start(async (ctx) => {
+    await ctx.sendChatAction('typing');
+
     await db
       .insert(chatsTable)
       .values({ id: ctx.chat.id, username: ctx.from.username })
       .onConflictDoNothing();
 
-    ctx.reply('Welcome! Use /help to see available commands.');
+    const introLines = [
+      '🤖 Yo! I’m Repeater 3000!',
+      'Your pocket-sized word trainer — always ready to help! ⚡️',
+      '',
+      'Here’s what I can do for you:',
+      '🕒 Remind you to study — at a time you choose',
+      '📝 Help you learn the words you pick',
+      '',
+      'Type /add_word to send me a word to get rolling, or /time to set your reminder! 🎯',
+    ];
+
+    await ctx.replyWithHTML(introLines.join('\n'));
   });
 
   bot.help((ctx) =>
     ctx.reply(
-      'Available commands: /start, /help, /notification_time, /add_word, /list_words, /remove_word, /quit'
+      'Available commands: /start, /help, /time, /add_word, /list_words, /remove_word, /quit'
     )
   );
 
@@ -66,9 +79,7 @@ function initializeBot() {
     await ctx.replyWithHTML(cards.map((card) => card.word).join('\n'));
   });
 
-  bot.command('notification_time', (ctx) =>
-    ctx.scene.enter('notificationTime')
-  );
+  bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
 
   bot.command('quit', async (ctx) => {
     await db.delete(cardsTable).where(eq(cardsTable.chat_id, ctx.chat.id));
