@@ -18,8 +18,7 @@ export function createNewFSRSData() {
 }
 
 export function updateFSRSData(card: Card, userRating: Rating): Card {
-  const now = new Date();
-  const previews = f.repeat(card, now);
+  const previews = f.repeat(card, new Date());
 
   for (const preview of previews) {
     if (preview.log.rating === userRating) {

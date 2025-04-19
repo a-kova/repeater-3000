@@ -5,6 +5,7 @@ import { createNewFSRSData } from './services/fsrs.js';
 import { startCronJobs } from './services/cron.js';
 import { convertFSRSDataToCardData } from './helpers/index.js';
 import { and, eq } from 'drizzle-orm';
+import { getMeaningOfWord, getUsageExampleForWord } from './services/openai.js';
 
 const server = fastify({
   logger: true,
@@ -18,7 +19,7 @@ async function run() {
   });
 
   server.post<{
-    Body: { chat_id: number; word: string; meaning?: string; example?: string };
+    Body: { chat_id: number; word: string };
   }>('/api/words', async (req, reply) => {
     const chat = await db.query.chatsTable.findFirst({
       where: (table, { eq }) => eq(table.id, req.body.chat_id),
@@ -29,12 +30,24 @@ async function run() {
       return;
     }
 
-    await db.insert(cardsTable).values({
-      ...req.body,
-      ...convertFSRSDataToCardData(createNewFSRSData()),
-    });
+    const [meaning, example] = await Promise.all([
+      getMeaningOfWord(req.body.word),
+      getUsageExampleForWord(req.body.word),
+    ]);
 
-    reply.status(201).send({ message: 'Word added successfully' });
+    const card = (
+      await db
+        .insert(cardsTable)
+        .values({
+          ...req.body,
+          ...convertFSRSDataToCardData(createNewFSRSData()),
+          meaning,
+          example,
+        })
+        .returning()
+    )[0];
+
+    reply.status(201).send(card);
   });
 
   server.delete<{
