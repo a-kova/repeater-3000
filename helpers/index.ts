@@ -1,5 +1,5 @@
 import { Card } from 'ts-fsrs';
-import { cardsTable } from '../services/db';
+import { cardsTable } from '../services/db/index.js';
 
 export function omitProps<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
   const result = { ...obj };

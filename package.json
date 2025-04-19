@@ -7,7 +7,7 @@
     "lint": "eslint . --ext .ts",
     "dev": "tsx watch --env-file=.env index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node index.js",
+    "start": "node dist/index.js",
     "db:generate": "npx --env-file=.env drizzle-kit generate",
     "db:migrate": "npx --env-file=.env drizzle-kit push"
   },

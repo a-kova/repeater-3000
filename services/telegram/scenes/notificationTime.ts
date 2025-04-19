@@ -1,5 +1,5 @@
 import { Markup, Scenes } from 'telegraf';
-import { chatsTable, db } from '../../../services/db';
+import { chatsTable, db } from '../../../services/db/index.js';
 import { eq } from 'drizzle-orm';
 import { CustomContext } from '..';
 

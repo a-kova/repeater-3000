@@ -5,8 +5,8 @@ import {
   removeWordScene,
   notificationTimeScene,
   repeatWordsScene,
-} from './scenes';
-import { cardsTable, chatsTable, db } from '../db';
+} from './scenes/index.js';
+import { cardsTable, chatsTable, db } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 
 interface CustomSceneSession extends Scenes.SceneSessionData {

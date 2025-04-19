@@ -4,7 +4,19 @@ import tsParser from '@typescript-eslint/parser';
 import globals from 'globals';
 
 export default [
+  {
+    ignores: ['eslint.config.mjs', 'dist/**', 'node_modules/**'],
+  },
   js.configs.recommended,
+  {
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'script', // CommonJS
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -13,6 +25,12 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.node,
+      },
+      parserOptions: {
+        env: {
+          es6: true,
+          node: true,
+        },
       },
     },
     plugins: {

@@ -1,6 +1,6 @@
 import { Scenes } from 'telegraf';
 import { and, eq } from 'drizzle-orm';
-import { cardsTable, db } from '../../db';
+import { cardsTable, db } from '../../db/index.js';
 import { CustomContext } from '..';
 
 const scene = new Scenes.BaseScene<CustomContext>('removeWord');

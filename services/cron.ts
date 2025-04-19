@@ -1,8 +1,8 @@
 import cron from 'node-cron';
 import { and, count, eq, inArray, lte } from 'drizzle-orm';
-import { notifyUser } from './telegram';
-import { db } from './db';
-import { cardsTable, chatsTable } from './db/schema';
+import { notifyUser } from './telegram/index.js';
+import { db } from './db/index.js';
+import { cardsTable, chatsTable } from './db/schema.js';
 
 export function startCronJobs() {
   cron.schedule('0 * * * *', async () => {

@@ -1,7 +1,7 @@
-import addWordScene from './addWord';
-import removeWordScene from './removeWord';
-import notificationTimeScene from './notificationTime';
-import repeatWordsScene from './repeatWords';
+import addWordScene from './addWord.js';
+import removeWordScene from './removeWord.js';
+import notificationTimeScene from './notificationTime.js';
+import repeatWordsScene from './repeatWords.js';
 
 export {
   addWordScene,

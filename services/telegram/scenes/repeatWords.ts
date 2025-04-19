@@ -1,11 +1,11 @@
 import { Markup, Scenes } from 'telegraf';
-import { cardsTable, db } from '../../../services/db';
+import { cardsTable, db } from '../../../services/db/index.js';
 import { eq } from 'drizzle-orm';
-import { updateFSRSData } from '../../fsrs';
+import { updateFSRSData } from '../../fsrs.js';
 import {
   convertFSRSDataToCardData,
   getFSRSDataFromCardData,
-} from '../../../helpers';
+} from '../../../helpers/index.js';
 import { CustomContext } from '..';
 import { Rating } from 'ts-fsrs';
 

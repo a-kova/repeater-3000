@@ -1,9 +1,9 @@
 import { Scenes } from 'telegraf';
-import { cardsTable, db } from '../../../services/db';
-import { createNewFSRSData } from '../../fsrs';
-import { convertFSRSDataToCardData } from '../../../helpers';
+import { cardsTable, db } from '../../../services/db/index.js';
+import { createNewFSRSData } from '../../fsrs.js';
+import { convertFSRSDataToCardData } from '../../../helpers/index.js';
 import { CustomContext } from '..';
-import { getMeaningOfWord, getUsageExampleForWord } from '../../openai';
+import { getMeaningOfWord, getUsageExampleForWord } from '../../openai.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('addWord');
 

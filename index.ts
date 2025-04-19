@@ -1,9 +1,9 @@
 import fastify from 'fastify';
-import { attachTelegrafToServer } from './services/telegram';
-import { cardsTable, db } from './services/db';
-import { createNewFSRSData } from './services/fsrs';
-import { startCronJobs } from './services/cron';
-import { convertFSRSDataToCardData } from './helpers';
+import { attachTelegrafToServer } from './services/telegram/index.js';
+import { cardsTable, db } from './services/db/index.js';
+import { createNewFSRSData } from './services/fsrs.js';
+import { startCronJobs } from './services/cron.js';
+import { convertFSRSDataToCardData } from './helpers/index.js';
 import { and, eq } from 'drizzle-orm';
 
 const server = fastify({
