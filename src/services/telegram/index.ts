@@ -106,6 +106,9 @@ function initializeBot() {
 
 export async function attachTelegrafToServer(server: FastifyInstance) {
   const bot = initializeBot();
+
+  console.log('Bot initialized', process.env.HOST);
+
   const webhook = await bot.createWebhook({ domain: process.env.HOST });
 
   server.post(`/telegraf/${bot.secretPathComponent()}`, async (req, reply) => {
