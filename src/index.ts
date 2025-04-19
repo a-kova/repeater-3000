@@ -7,7 +7,7 @@ import { convertFSRSDataToCardData } from './helpers/index.js';
 import { and, eq } from 'drizzle-orm';
 
 const server = fastify({
-  logger: process.env.NODE_ENV !== 'production',
+  logger: true,
 });
 
 async function run() {
