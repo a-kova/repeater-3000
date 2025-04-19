@@ -10,6 +10,7 @@ import {
 
 export const chatsTable = pgTable('chats', {
   id: integer('id').primaryKey(),
+  username: varchar('username', { length: 255 }),
   is_active: boolean('is_active').notNull().default(true),
   is_paid: boolean('is_paid').notNull().default(false),
   notification_time: varchar('notification_time', { length: 255 }).$default(

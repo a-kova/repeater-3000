@@ -11,7 +11,7 @@ export default [
   {
     languageOptions: {
       ecmaVersion: 'latest',
-      sourceType: 'script', // CommonJS
+      sourceType: 'script',
       globals: {
         ...globals.node,
       },

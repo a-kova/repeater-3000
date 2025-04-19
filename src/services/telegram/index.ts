@@ -33,7 +33,7 @@ function initializeBot() {
   bot.start(async (ctx) => {
     await db
       .insert(chatsTable)
-      .values({ id: ctx.chat.id })
+      .values({ id: ctx.chat.id, username: ctx.from.username })
       .onConflictDoNothing();
 
     ctx.reply('Welcome! Use /help to see available commands.');
