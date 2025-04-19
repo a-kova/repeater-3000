@@ -98,7 +98,7 @@ function initializeBot() {
 
     const cards = await db.query.cardsTable.findMany({
       where: (table, { and, eq, lte }) =>
-        and(eq(table.chat_id, chatId), lte(table.last_review, now)),
+        and(eq(table.chat_id, chatId), lte(table.due, now)),
     });
 
     if (cards.length === 0) {

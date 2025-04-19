@@ -12,6 +12,8 @@ scene.enter(async (ctx) => {
 });
 
 scene.on('text', async (ctx) => {
+  await ctx.sendChatAction('typing');
+
   const chatId = ctx.chat.id;
   const word = ctx.message.text.trim().toLowerCase();
 
@@ -40,18 +42,6 @@ scene.on('text', async (ctx) => {
     await ctx.scene.leave();
     return;
   }
-
-  // const totalWords = await db.$count(
-  //   cardsTable,
-  //   eq(cardsTable.chat_id, chatId)
-  // );
-
-  // if (totalWords >= 100) {
-  //   await ctx.reply(
-  //     'You have reached the maximum number of words you can save.'
-  //   );
-  //   return;
-  // }
 
   const newCardData: typeof cardsTable.$inferInsert = {
     chat_id: chatId,

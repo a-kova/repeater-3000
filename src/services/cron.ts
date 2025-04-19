@@ -25,10 +25,7 @@ export function startCronJobs() {
       .select({ count: count(), chat_id: cardsTable.chat_id })
       .from(cardsTable)
       .where(
-        and(
-          inArray(cardsTable.chat_id, chatIds),
-          lte(cardsTable.last_review, now)
-        )
+        and(inArray(cardsTable.chat_id, chatIds), lte(cardsTable.due, now))
       )
       .groupBy(cardsTable.chat_id);
 

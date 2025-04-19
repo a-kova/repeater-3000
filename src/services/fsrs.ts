@@ -14,17 +14,7 @@ const params = generatorParameters({
 const f = fsrs(params);
 
 export function createNewFSRSData() {
-  const now = new Date();
-  const card = createEmptyCard(now);
-  const previews = f.repeat(card, now);
-
-  for (const preview of previews) {
-    if (preview.log.rating === Rating.Good) {
-      return preview.card;
-    }
-  }
-
-  return card;
+  return createEmptyCard(new Date());
 }
 
 export function updateFSRSData(card: Card, userRating: Rating): Card {
