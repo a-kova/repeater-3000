@@ -8,10 +8,10 @@ const scene = new Scenes.BaseScene<CustomContext>('notificationTime');
 const timeOptions = [];
 
 for (let i = 0; i < 24; i++) {
-  timeOptions.push([`${i < 10 ? '0' : ''}${i}:00`]);
+  timeOptions.push(`${i < 10 ? '0' : ''}${i}:00`);
 }
 
-const timeKeyboard = Markup.keyboard(timeOptions).oneTime().resize();
+const timeKeyboard = Markup.keyboard(timeOptions, { columns: 2 }).oneTime();
 
 scene.enter(async (ctx) => {
   const chatId = ctx.chat?.id;
