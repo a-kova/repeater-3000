@@ -4,6 +4,7 @@ import { createNewFSRSData } from '../../fsrs.js';
 import { convertFSRSDataToCardData } from '../../../helpers/index.js';
 import { CustomContext } from '..';
 import { getMeaningOfWord, getUsageExampleForWord } from '../../openai.js';
+import { createPageForCard } from '../../notion.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('addWord');
 
@@ -59,7 +60,19 @@ scene.on('text', async (ctx) => {
     newCardData.example = example;
   }
 
-  await db.insert(cardsTable).values(newCardData);
+  const newCard = (
+    await db.insert(cardsTable).values(newCardData).returning()
+  )[0];
+
+  if (chat.notion_api_key && chat.notion_database_id) {
+    createPageForCard({
+      card: newCard,
+      apiKey: chat.notion_api_key,
+      databaseId: chat.notion_database_id,
+    }).catch((error) => {
+      console.error('Error creating page in Notion:', error);
+    });
+  }
 
   await ctx.reply(`The word "${word}" has been added successfully!`);
   await ctx.scene.leave();

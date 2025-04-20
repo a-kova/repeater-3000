@@ -52,20 +52,14 @@ function initializeBot() {
     await ctx.replyWithHTML(introLines.join('\n'));
   });
 
-  bot.help((ctx) =>
-    ctx.reply(
-      'Available commands: /start, /help, /time, /add_word, /list_words, /remove_word, /quit'
-    )
-  );
-
   bot.command('add_word', (ctx) => ctx.scene.enter('addWord'));
 
   bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
 
   bot.command('list_words', async (ctx) => {
-    const chatId = ctx.chat.id;
-
     await ctx.sendChatAction('typing');
+
+    const chatId = ctx.chat.id;
 
     const cards = await db.query.cardsTable.findMany({
       where: (table, { eq }) => eq(table.chat_id, chatId),
