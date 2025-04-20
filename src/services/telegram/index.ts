@@ -63,17 +63,14 @@ function initializeBot() {
 
     const cards = await db.query.cardsTable.findMany({
       where: (table, { eq }) => eq(table.chat_id, chatId),
+      orderBy: (table) => table.word,
     });
 
     if (cards.length === 0) {
       return await ctx.reply('No words found.');
     }
 
-    const list = cards
-      .map((card) => card.word)
-      .sort((a, b) => a.replace('to ', '').localeCompare(b.replace('to ', '')))
-      .map((word, index) => `${index + 1}. ${word}`)
-      .join('\n');
+    const list = cards.map((word, index) => `${index + 1}. ${word}`).join('\n');
 
     await ctx.replyWithHTML(list);
   });
