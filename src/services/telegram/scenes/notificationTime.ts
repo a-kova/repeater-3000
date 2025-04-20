@@ -14,20 +14,17 @@ for (let i = 0; i < 24; i++) {
 const timeKeyboard = Markup.keyboard(timeOptions, { columns: 2 }).oneTime();
 
 scene.enter(async (ctx) => {
-  const chatId = ctx.chat?.id;
+  await ctx.sendChatAction('typing');
 
-  if (!chatId) {
-    await ctx.reply('Please start the bot in a chat.');
-    return;
-  }
-
-  const chat = await db.query.chatsTable.findFirst({
-    where: (table, { eq }) => eq(table.id, chatId),
-  });
+  const hours = new Date().getUTCHours() + 1;
+  const minutes = new Date().getUTCMinutes() + 1;
+  const time = `${hours < 10 ? '0' : ''}${hours}:${
+    minutes < 10 ? '0' : ''
+  }${minutes}`;
 
   await ctx.replyWithHTML(
-    `Please select the time <b>in UTC</b> for your daily notification. (Current time: <i>${chat?.notification_time}</i>)`,
-    timeKeyboard
+    `Please select the time <b>in UTC</b> for your daily notification.\nCurrent UTC time: <i>${time}</i>` +
+      timeKeyboard
   );
 });
 

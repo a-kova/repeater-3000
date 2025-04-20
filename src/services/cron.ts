@@ -7,7 +7,7 @@ import { cardsTable, chatsTable } from './db/schema.js';
 export function startCronJobs() {
   cron.schedule('0 * * * *', async () => {
     const now = new Date();
-    const hour = now.getUTCHours();
+    const hour = now.getUTCHours() + 1;
     const notificationTime = `${hour < 10 ? '0' : ''}${hour}:00`;
 
     const chats = await db
