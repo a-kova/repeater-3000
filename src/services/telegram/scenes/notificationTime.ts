@@ -26,7 +26,7 @@ scene.enter(async (ctx) => {
   });
 
   await ctx.replyWithHTML(
-    `Please select the time you want to receive notifications. (current is <b>${chat?.notification_time}</b>)`,
+    `Please select the time <b>in UTC</b> for your daily notification. (Current time: <i>${chat?.notification_time}</i>)`,
     timeKeyboard
   );
 });
