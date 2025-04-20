@@ -28,6 +28,7 @@ export const cardsTable = pgTable(
     chat_id: integer('chat_id')
       .notNull()
       .references(() => chatsTable.id),
+    notion_page_id: varchar('notion_page_id', { length: 255 }).unique(),
     word: varchar('word', { length: 255 }).notNull(),
     meaning: varchar('meaning', { length: 255 }),
     example: varchar('example', { length: 255 }),

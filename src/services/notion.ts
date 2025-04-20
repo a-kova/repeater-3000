@@ -20,40 +20,35 @@ export class NotionClient {
     this.databaseId = databaseId;
   }
 
-  async getAllPagesFromDbEditedAfter(since: Date): Promise<PageData[]> {
-    const pages: PageData[] = [];
-    let hasMore = true;
-    let nextCursor: string | null = null;
-
-    do {
-      const response = await this.client.databases.query({
-        database_id: this.databaseId,
-        start_cursor: nextCursor || undefined,
-        filter: {
-          timestamp: 'last_edited_time',
-          last_edited_time: {
-            on_or_after: since.toISOString(),
-          },
+  async getAllPagesFromDbEditedAfter(
+    since: Date,
+    nextCursor?: string
+  ): Promise<{ items: PageData[]; nextCursor?: string }> {
+    const response = await this.client.databases.query({
+      database_id: this.databaseId,
+      start_cursor: nextCursor || undefined,
+      filter: {
+        timestamp: 'last_edited_time',
+        last_edited_time: {
+          on_or_after: since.toISOString(),
         },
-      });
+      },
+    });
 
-      hasMore = response.has_more;
-      nextCursor = response.next_cursor;
-
-      (response.results as PageObjectResponse[]).map((page) => {
+    return {
+      items: (response.results as PageObjectResponse[]).map((page) => {
         const properties = page.properties as any;
 
-        pages.push({
+        return {
           id: page.id,
           word: properties.Word.title[0].text.content,
           meaning: properties.Meaning.rich_text[0]?.text.content || '',
           example: properties.Example.rich_text[0]?.text.content || '',
           archived: page.archived,
-        });
-      });
-    } while (hasMore);
-
-    return pages;
+        };
+      }),
+      nextCursor: response.next_cursor || undefined,
+    };
   }
 
   async updatePageForCard(

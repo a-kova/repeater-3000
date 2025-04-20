@@ -14,12 +14,15 @@ async function handleNotionPageUpdate(
   page: PageData
 ) {
   if (page.archived) {
-    await db
-      .delete(cardsTable)
-      .where(
-        and(eq(cardsTable.chat_id, chatId), eq(cardsTable.word, page.word))
-      );
+    await db.delete(cardsTable).where(eq(cardsTable.notion_page_id, page.id));
+    return;
+  }
 
+  const existingCard = await db.query.cardsTable.findFirst({
+    where: (cardsTable, { eq }) => eq(cardsTable.notion_page_id, page.id),
+  });
+
+  if (existingCard) {
     return;
   }
 
@@ -68,8 +71,8 @@ export function startCronJobs() {
     cards.forEach((card) => notifyUser(card.chat_id, card.count));
   });
 
-  // Sync Notion pages with the database every 3 hours
-  cron.schedule('0 */3 * * *', async () => {
+  // Sync Notion pages with the database every 5 mins
+  cron.schedule('*/5 * * * *', async () => {
     const chats = await db.query.chatsTable.findMany({
       where: (chatsTable, { and, eq, isNotNull }) =>
         and(
@@ -85,13 +88,20 @@ export function startCronJobs() {
         chat.notion_database_id!
       );
 
-      const notionPages = await notionClient.getAllPagesFromDbEditedAfter(
-        chat.notion_synced_at || new Date(0)
-      );
+      let nextCursor: string | undefined = undefined;
 
-      for (const page of notionPages) {
-        handleNotionPageUpdate(notionClient, chat.id, page);
-      }
+      do {
+        const result = await notionClient.getAllPagesFromDbEditedAfter(
+          chat.notion_synced_at || new Date(0),
+          nextCursor
+        );
+
+        nextCursor = result.nextCursor;
+
+        for (const page of result.items) {
+          await handleNotionPageUpdate(notionClient, chat.id, page);
+        }
+      } while (nextCursor);
 
       await db
         .update(chatsTable)
