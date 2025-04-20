@@ -68,8 +68,8 @@ export function startCronJobs() {
     cards.forEach((card) => notifyUser(card.chat_id, card.count));
   });
 
-  // Sync Notion pages with the database
-  cron.schedule('* * * * *', async () => {
+  // Sync Notion pages with the database every 5 minutes
+  cron.schedule('*/5 * * * *', async () => {
     console.log('Running sync');
     const chats = await db.query.chatsTable.findMany({
       where: (chatsTable, { and, eq, isNotNull }) =>
