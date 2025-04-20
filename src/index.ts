@@ -1,7 +1,6 @@
 import fastify from 'fastify';
 import { attachTelegrafToServer } from './services/telegram/index.js';
 import { startCronJobs } from './services/cron.js';
-import { console } from 'inspector';
 
 const server = fastify({
   logger: true,
