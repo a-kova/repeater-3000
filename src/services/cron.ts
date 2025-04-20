@@ -31,6 +31,7 @@ async function handleNotionPageUpdate(
       .insert(cardsTable)
       .values({
         chat_id: chatId,
+        notion_page_id: page.id,
         word: page.word,
         meaning: page.meaning || (await getMeaningOfWord(page.word)),
         example: page.example || (await getUsageExampleForWord(page.word)),
