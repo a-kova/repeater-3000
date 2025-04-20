@@ -1,11 +1,6 @@
 import fastify from 'fastify';
 import { attachTelegrafToServer } from './services/telegram/index.js';
-import { cardsTable, db } from './services/db/index.js';
-import { createNewFSRSData } from './services/fsrs.js';
 import { startCronJobs } from './services/cron.js';
-import { convertFSRSDataToCardData } from './helpers/index.js';
-import { and, eq } from 'drizzle-orm';
-import { getMeaningOfWord, getUsageExampleForWord } from './services/openai.js';
 import { console } from 'inspector';
 
 const server = fastify({
@@ -19,8 +14,7 @@ async function run() {
     reply.send({ status: 'ok' });
   });
 
-  server.get('/api/notion', async (req, reply) => {
-    // Log all params
+  server.post('/api/notion', async (req, reply) => {
     console.log(req.query);
     console.log(req.body);
     console.log(req.params);
