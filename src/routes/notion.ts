@@ -50,6 +50,7 @@ export default async function notionRoutes(server: FastifyInstance) {
       return reply.status(404).send({ error: 'Page not found' });
     }
 
+    // @ts-expect-error: Type 'undefined' is not assignable to type 'string'
     const word = page.properties.Word.title[0].plain_text;
 
     if (event.type === 'page.deleted') {
