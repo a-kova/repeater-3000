@@ -17,6 +17,9 @@ export const chatsTable = pgTable('chats', {
     () => '12:00'
   ),
   notion_api_key: varchar('notion_api_key', { length: 255 }),
+  notion_verification_token: varchar('notion_verification_token', {
+    length: 255,
+  }),
   notion_database_id: varchar('notion_database_id', { length: 255 }),
 });
 

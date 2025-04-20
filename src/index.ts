@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import { attachTelegrafToServer } from './services/telegram/index.js';
 import { startCronJobs } from './services/cron.js';
+import notionRoutes from './routes/notion.js';
 
 const server = fastify({
   logger: true,
@@ -13,13 +14,7 @@ async function run() {
     reply.send({ status: 'ok' });
   });
 
-  server.post('/api/notion', async (req, reply) => {
-    console.log(req.query);
-    console.log(req.body);
-    console.log(req.params);
-
-    reply.status(200).send({ message: 'Notion API endpoint' });
-  });
+  notionRoutes(server);
 
   server.listen(
     { port: process.env.PORT || 8080, host: '0.0.0.0' },
@@ -29,11 +24,11 @@ async function run() {
         process.exit(1);
       }
 
+      startCronJobs();
+
       console.log(`Server listening at ${address}`);
     }
   );
-
-  startCronJobs();
 }
 
 run().catch((err) => {
