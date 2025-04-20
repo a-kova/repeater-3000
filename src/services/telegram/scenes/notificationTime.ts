@@ -23,8 +23,8 @@ scene.enter(async (ctx) => {
   }${minutes}`;
 
   await ctx.replyWithHTML(
-    `Please select the time <b>in UTC</b> for your daily notification.\nCurrent UTC time: <i>${time}</i>` +
-      timeKeyboard
+    `Please select the time <b>in UTC</b> for your daily notification.\n\nCurrent UTC time: <i>${time}</i>`,
+    timeKeyboard
   );
 });
 
