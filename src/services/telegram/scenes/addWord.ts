@@ -38,9 +38,17 @@ scene.on('text', async (ctx) => {
 
   const card = await createCardForChat({ word }, chat);
 
-  await ctx.replyWithHTML(
-    `The word "${word}" has been added!\n\n<b>Tranlation: ${card.translation}\n\n<b>Example:</> ${card.example}`
-  );
+  let message = `The word "${word}" has been added!`;
+
+  if (card.translation) {
+    message += `\n\n<b>Translation:</b> ${card.translation}`;
+  }
+
+  if (card.example) {
+    message += `\n\n<b>Example:</b> ${card.example}`;
+  }
+
+  await ctx.replyWithHTML(message);
   await ctx.scene.leave();
 });
 

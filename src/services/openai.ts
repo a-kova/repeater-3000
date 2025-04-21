@@ -23,5 +23,15 @@ export async function getRussianTranslationForWord(word: string) {
     `Translate the word "${word}" to Russian. Give only the translation, no other text.`
   );
 
-  return response.text.trim();
+  let translation = response.text.trim();
+
+  if (translation.startsWith('"')) {
+    translation = translation.slice(1);
+  }
+
+  if (translation.endsWith('"') || translation.endsWith('.')) {
+    translation = translation.slice(0, -1);
+  }
+
+  return translation;
 }
