@@ -78,6 +78,8 @@ function initializeBot() {
 
   bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
 
+  bot.command('repeat_now', (ctx) => ctx.scene.enter('repeatWords'));
+
   bot.command('quit', async (ctx) => {
     await deleteChat(ctx.chat.id);
     await ctx.reply('Bye! I will not bother you anymore.');

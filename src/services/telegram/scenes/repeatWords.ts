@@ -1,7 +1,7 @@
 import { Markup, Scenes } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import { CustomContext } from '..';
-import { getCardsForToday, rateCard } from '../../../repositories/card.js';
+import { getCardForToday, rateCard } from '../../../repositories/card.js';
 
 const ratingMap = {
   '❌ No': Rating.Again,
@@ -15,19 +15,29 @@ const scene = new Scenes.BaseScene<CustomContext>('repeatWords');
 scene.enter(async (ctx) => {
   await ctx.sendChatAction('typing');
 
-  const cards = await getCardsForToday(ctx.chat!.id);
+  const card = await getCardForToday(ctx.chat!.id);
 
-  if (cards.length === 0) {
-    await ctx.reply('Good job! No more words for today.');
+  if (!card) {
+    await ctx.reply("That's it, no more words for today.", {
+      reply_markup: { remove_keyboard: true },
+    });
     return await ctx.scene.leave();
   }
 
-  const firstCard = cards[0];
-  ctx.scene.session.card = firstCard;
+  ctx.scene.session.card = card;
+
+  const textLines = [`Remember this word? <b>${card.word}</b>`];
+
+  if (card.translation && card.example) {
+    textLines.push(
+      `\n<b>Translation:</b> <tg-spoiler>${card.translation}</tg-spoiler>`
+    );
+    textLines.push(`<b>Example:</b> <tg-spoiler>${card.example}</tg-spoiler>`);
+  }
 
   await ctx.replyWithHTML(
-    `Remember this word? <b>${firstCard.word}</b>`,
-    Markup.keyboard(Object.keys(ratingMap), { columns: 2 }).oneTime().resize()
+    textLines.join('\n'),
+    Markup.keyboard(Object.keys(ratingMap), { columns: 2 }).resize()
   );
 });
 

@@ -115,8 +115,8 @@ export async function deleteCard(params: Pick<CardItem, 'word' | 'chat_id'>) {
     );
 }
 
-export async function getCardsForToday(chatId: number) {
-  return await db.query.cardsTable.findMany({
+export async function getCardForToday(chatId: number) {
+  return await db.query.cardsTable.findFirst({
     where: (table, { and, eq, lte }) =>
       and(eq(table.chat_id, chatId), lte(table.due, new Date())),
   });
