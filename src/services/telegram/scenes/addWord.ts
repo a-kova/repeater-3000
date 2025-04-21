@@ -20,36 +20,44 @@ scene.on('text', async (ctx) => {
     return;
   }
 
-  const chat = await getChatById(chatId);
+  try {
+    const chat = await getChatById(chatId);
 
-  if (!chat) {
-    await ctx.reply('Please start the bot in a chat.');
+    if (!chat) {
+      await ctx.reply('Please start the bot in a chat.');
+      await ctx.scene.leave();
+      return;
+    }
+
+    const exists = await cardExists({ word, chat_id: chatId });
+
+    if (exists) {
+      await ctx.reply('This word already exists in your list.');
+      await ctx.scene.leave();
+      return;
+    }
+
+    const card = await createCardForChat({ word }, chat);
+
+    let message = `The word "${word}" has been added!`;
+
+    if (card.translation) {
+      message += `\n\n<b>Translation:</b> ${card.translation}`;
+    }
+
+    if (card.example) {
+      message += `\n\n<b>Example:</b> ${card.example}`;
+    }
+
+    await ctx.replyWithHTML(message);
     await ctx.scene.leave();
-    return;
-  }
-
-  const exists = await cardExists({ word, chat_id: chatId });
-
-  if (exists) {
-    await ctx.reply('This word already exists in your list.');
+  } catch (error) {
+    console.error('Error adding word:', error);
+    await ctx.reply(
+      'An error occurred while adding the word. Please try again.'
+    );
     await ctx.scene.leave();
-    return;
   }
-
-  const card = await createCardForChat({ word }, chat);
-
-  let message = `The word "${word}" has been added!`;
-
-  if (card.translation) {
-    message += `\n\n<b>Translation:</b> ${card.translation}`;
-  }
-
-  if (card.example) {
-    message += `\n\n<b>Example:</b> ${card.example}`;
-  }
-
-  await ctx.replyWithHTML(message);
-  await ctx.scene.leave();
 });
 
 scene.on('message', async (ctx) => {
