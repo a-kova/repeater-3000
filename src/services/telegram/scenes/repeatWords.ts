@@ -39,18 +39,24 @@ scene.on('text', async (ctx) => {
   const rating = ratingMap[ctx.text as keyof typeof ratingMap];
   const card = ctx.scene.session.cards!.shift()!;
 
-  await rateCard(card, rating);
+  try {
+    await rateCard(card, rating);
 
-  if (rating < Rating.Good && card.translation && card.example) {
-    await ctx.replyWithHTML(
-      `<b>Translation:</b> ${card.translation}\n\n<b>Example:</b> ${card.example}`
-    );
-  }
+    if (rating < Rating.Good && card.translation && card.example) {
+      await ctx.replyWithHTML(
+        `<b>Translation:</b> ${card.translation}\n\n<b>Example:</b> ${card.example}`
+      );
+    }
 
-  if (ctx.scene.session.cards?.length) {
-    return await ctx.scene.reenter();
-  } else {
-    await ctx.reply('Good job! No more words for today.');
+    if (ctx.scene.session.cards?.length) {
+      return await ctx.scene.reenter();
+    } else {
+      await ctx.reply('Good job! No more words for today.');
+      return await ctx.scene.leave();
+    }
+  } catch (error) {
+    console.error('Error rating card:', error);
+    await ctx.reply('An error occurred. Please try again later.');
     return await ctx.scene.leave();
   }
 });

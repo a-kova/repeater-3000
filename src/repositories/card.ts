@@ -4,7 +4,10 @@ import {
   getRussianTranslationForWord,
   getUsageExampleForWord,
 } from '../services/openai.js';
-import { getFSRSDataFromCardData } from '../helpers/index.js';
+import {
+  getFSRSDataFromCardData,
+  convertFSRSDataToCardData,
+} from '../helpers/index.js';
 import { and, eq } from 'drizzle-orm';
 
 type CardItem = typeof cardsTable.$inferSelect;
@@ -93,10 +96,7 @@ export async function rateCard(
     if (preview.log.rating === rating) {
       newCardData = {
         ...newCardData,
-        ...preview.card,
-        stability: preview.card.stability.toString(),
-        difficulty: preview.card.difficulty.toString(),
-        last_review: preview.card.last_review || null,
+        ...convertFSRSDataToCardData(preview.card),
       };
     }
   }
