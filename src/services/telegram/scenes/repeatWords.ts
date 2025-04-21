@@ -53,15 +53,17 @@ scene.on('text', async (ctx) => {
     }
 
     if (ctx.scene.session.cards?.length) {
-      return await ctx.scene.reenter();
+      console.log('Before reenter:', ctx.scene.session.cards);
+      await ctx.scene.reenter();
+      console.log('After reenter:', ctx.scene.session.cards);
     } else {
       await ctx.reply('Good job! No more words for today.');
-      return await ctx.scene.leave();
+      await ctx.scene.leave();
     }
   } catch (error) {
     console.error('Error rating card:', error);
     await ctx.reply('An error occurred. Please try again later.');
-    return await ctx.scene.leave();
+    await ctx.scene.leave();
   }
 });
 
