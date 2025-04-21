@@ -1,7 +1,7 @@
 import { Markup, Scenes } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import { CustomContext } from '..';
-import { rateCard } from '../../../repositories/card.js';
+import { getCardsForToday, rateCard } from '../../../repositories/card.js';
 
 const ratingMap = {
   '❌ No': Rating.Again,
@@ -15,17 +15,18 @@ const scene = new Scenes.BaseScene<CustomContext>('repeatWords');
 scene.enter(async (ctx) => {
   await ctx.sendChatAction('typing');
 
-  const card = ctx.scene.session.cards?.[0];
+  const cards = await getCardsForToday(ctx.chat!.id);
 
-  console.log(2, `${ctx.scene.session.cards?.length || 0} cards in session`);
-
-  if (!card) {
-    await ctx.reply('No words for today.');
+  if (cards.length === 0) {
+    await ctx.reply('Good job! No more words for today.');
     return await ctx.scene.leave();
   }
 
+  const firstCard = cards[0];
+  ctx.scene.session.card = firstCard;
+
   await ctx.replyWithHTML(
-    `Remember this word? <b>${card.word}</b>`,
+    `Remember this word? <b>${firstCard.word}</b>`,
     Markup.keyboard(Object.keys(ratingMap), { columns: 2 }).oneTime().resize()
   );
 });
@@ -39,9 +40,7 @@ scene.on('text', async (ctx) => {
   }
 
   const rating = ratingMap[ctx.text as keyof typeof ratingMap];
-  const card = ctx.scene.session.cards!.shift()!;
-
-  console.log(3, `${ctx.scene.session.cards?.length || 0} cards in session`);
+  const card = ctx.scene.session.card!;
 
   try {
     await rateCard(card, rating);
@@ -52,14 +51,7 @@ scene.on('text', async (ctx) => {
       );
     }
 
-    if (ctx.scene.session.cards?.length) {
-      console.log('Before reenter:', ctx.scene.session.cards);
-      await ctx.scene.reenter();
-      console.log('After reenter:', ctx.scene.session.cards);
-    } else {
-      await ctx.reply('Good job! No more words for today.');
-      await ctx.scene.leave();
-    }
+    await ctx.scene.reenter();
   } catch (error) {
     console.error('Error rating card:', error);
     await ctx.reply('An error occurred. Please try again later.');

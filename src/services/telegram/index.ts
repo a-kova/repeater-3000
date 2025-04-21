@@ -7,14 +7,11 @@ import {
   repeatWordsScene,
 } from './scenes/index.js';
 import { cardsTable } from '../db/index.js';
-import {
-  getAllCardsForChat,
-  getCardsForToday,
-} from '../../repositories/card.js';
+import { getAllCardsForChat } from '../../repositories/card.js';
 import { createChat, deleteChat } from '../../repositories/chat.js';
 
 interface CustomSceneSession extends Scenes.SceneSessionData {
-  cards?: (typeof cardsTable.$inferSelect)[];
+  card?: typeof cardsTable.$inferSelect;
 }
 
 export type CustomContext = Scenes.SceneContext<CustomSceneSession>;
@@ -87,20 +84,7 @@ function initializeBot() {
     await ctx.leaveChat();
   });
 
-  bot.action('start_repeat', async (ctx) => {
-    const chatId = ctx.chat!.id;
-    const cards = await getCardsForToday(chatId);
-
-    if (cards.length === 0) {
-      return await ctx.reply('No words for today.');
-    }
-
-    ctx.scene.session.cards = cards;
-
-    console.log(1, `${ctx.scene.session.cards.length} cards in session`);
-
-    await ctx.scene.enter('repeatWords');
-  });
+  bot.action('start_repeat', (ctx) => ctx.scene.enter('repeatWords'));
 
   bot.action('postpone_repeat', (ctx) =>
     ctx.reply('Okay, I will remind you tomorrow.')
