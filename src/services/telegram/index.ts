@@ -97,6 +97,8 @@ function initializeBot() {
 
     ctx.scene.session.cards = cards;
 
+    console.log(1, `${ctx.scene.session.cards.length} cards in session`);
+
     await ctx.scene.enter('repeatWords');
   });
 

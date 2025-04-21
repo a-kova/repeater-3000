@@ -17,6 +17,8 @@ scene.enter(async (ctx) => {
 
   const card = ctx.scene.session.cards?.[0];
 
+  console.log(2, `${ctx.scene.session.cards?.length || 0} cards in session`);
+
   if (!card) {
     await ctx.reply('No words for today.');
     return await ctx.scene.leave();
@@ -38,6 +40,8 @@ scene.on('text', async (ctx) => {
 
   const rating = ratingMap[ctx.text as keyof typeof ratingMap];
   const card = ctx.scene.session.cards!.shift()!;
+
+  console.log(3, `${ctx.scene.session.cards?.length || 0} cards in session`);
 
   try {
     await rateCard(card, rating);
