@@ -54,13 +54,6 @@ scene.on('text', async (ctx) => {
 
   try {
     await rateCard(card, rating);
-
-    if (rating < Rating.Good && card.translation && card.example) {
-      await ctx.replyWithHTML(
-        `<b>Translation:</b> ${card.translation}\n\n<b>Example:</b> ${card.example}`
-      );
-    }
-
     await ctx.scene.reenter();
   } catch (error) {
     console.error('Error rating card:', error);
