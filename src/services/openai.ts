@@ -20,7 +20,7 @@ export async function getUsageExampleForWord(word: string) {
 
 export async function getRussianTranslationForWord(word: string) {
   const response = await chatGPT.sendMessage(
-    `Translate the word "${word}" to Russian.`
+    `Translate the word "${word}" to Russian. Give only the translation, no other text.`
   );
 
   return response.text.trim();

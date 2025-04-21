@@ -1,7 +1,6 @@
 import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
 import { cardsTable, chatsTable, db } from '../services/db/index.js';
 import {
-  getMeaningOfWord,
   getRussianTranslationForWord,
   getUsageExampleForWord,
 } from '../services/openai.js';
@@ -23,23 +22,21 @@ async function populatePaidData(data: typeof cardsTable.$inferInsert) {
       and(
         eq(table.word, data.word),
         isNotNull(table.translation),
-        isNotNull(table.meaning),
         isNotNull(table.example)
       ),
-    columns: { translation: true, meaning: true, example: true },
+    columns: { translation: true, example: true },
   });
 
   if (existingCard) {
     return { ...data, ...existingCard };
   }
 
-  const [translation, meaning, example] = await Promise.all([
+  const [translation, example] = await Promise.all([
     getRussianTranslationForWord(data.word),
-    getMeaningOfWord(data.word),
     getUsageExampleForWord(data.word),
   ]);
 
-  return { ...data, translation, meaning, example };
+  return { ...data, translation, example };
 }
 
 export async function getAllCardsForChat(chatId: number) {
@@ -60,25 +57,26 @@ export async function cardExists(data: Pick<CardItem, 'word' | 'chat_id'>) {
 }
 
 export async function createCardForChat(
-  word: string,
+  data: Partial<typeof cardsTable.$inferInsert>,
   chat: typeof chatsTable.$inferSelect
 ) {
   const fsrsData = createEmptyCard(new Date());
 
-  let data: typeof cardsTable.$inferInsert = {
+  let insertData: typeof cardsTable.$inferInsert = {
+    ...data,
     ...fsrsData,
+    word: data.word || '',
     stability: fsrsData.stability.toString(),
     difficulty: fsrsData.difficulty.toString(),
     last_review: fsrsData.last_review || null,
-    word,
     chat_id: chat.id,
   };
 
   if (chat.is_paid) {
-    data = await populatePaidData(data);
+    insertData = await populatePaidData(insertData);
   }
 
-  const res = await db.insert(cardsTable).values(data).returning();
+  const res = await db.insert(cardsTable).values(insertData).returning();
 
   return res[0];
 }

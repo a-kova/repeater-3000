@@ -41,9 +41,9 @@ scene.on('text', async (ctx) => {
 
   await rateCard(card, rating);
 
-  if (rating < Rating.Good && card.meaning && card.example) {
+  if (rating < Rating.Good && card.translation && card.example) {
     await ctx.replyWithHTML(
-      `<b>Translation:</b> ${card.translation}\n\n<b>Meaning:</b> ${card.meaning}\n\n<b>Example:</b> ${card.example}`
+      `<b>Translation:</b> ${card.translation}\n\n<b>Example:</b> ${card.example}`
     );
   }
 

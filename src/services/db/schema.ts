@@ -33,7 +33,6 @@ export const cardsTable = pgTable(
     notion_page_id: varchar('notion_page_id', { length: 255 }).unique(),
     word: varchar('word', { length: 255 }).notNull(),
     translation: varchar('translation', { length: 255 }),
-    meaning: varchar('meaning', { length: 255 }),
     example: varchar('example', { length: 255 }),
     due: timestamp('due').notNull(),
     stability: numeric('stability').notNull(),

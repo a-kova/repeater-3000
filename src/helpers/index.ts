@@ -32,7 +32,7 @@ export function getFSRSDataFromCardData(
       'id',
       'chat_id',
       'word',
-      'meaning',
+      'translation',
       'example',
       'created_at',
     ]),

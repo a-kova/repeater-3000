@@ -4,14 +4,12 @@ import { notifyUser } from './telegram/index.js';
 import { db } from './db/index.js';
 import { cardsTable, chatsTable } from './db/schema.js';
 import { NotionClient, PageData } from './notion.js';
-import { getMeaningOfWord, getUsageExampleForWord } from './openai.js';
-import { createNewFSRSData } from './fsrs.js';
-import { convertFSRSDataToCardData } from '../helpers/index.js';
 import { updateChat } from '../repositories/chat.js';
+import { createCardForChat } from '../repositories/card.js';
 
 async function handleNotionPageUpdate(
   notionClient: NotionClient,
-  chatId: number,
+  chat: typeof chatsTable.$inferSelect,
   page: PageData
 ) {
   if (page.archived) {
@@ -27,19 +25,10 @@ async function handleNotionPageUpdate(
     return;
   }
 
-  const card = (
-    await db
-      .insert(cardsTable)
-      .values({
-        chat_id: chatId,
-        notion_page_id: page.id,
-        word: page.word,
-        meaning: page.meaning || (await getMeaningOfWord(page.word)),
-        example: page.example || (await getUsageExampleForWord(page.word)),
-        ...convertFSRSDataToCardData(createNewFSRSData()),
-      })
-      .returning()
-  )[0];
+  const card = await createCardForChat(
+    { word: page.word, notion_page_id: page.id },
+    chat
+  );
 
   await notionClient.updatePageForCard(page.id, card);
 }
@@ -101,7 +90,7 @@ export function startCronJobs() {
         nextCursor = result.nextCursor;
 
         for (const page of result.items) {
-          await handleNotionPageUpdate(notionClient, chat.id, page);
+          await handleNotionPageUpdate(notionClient, chat, page);
         }
       } while (nextCursor);
 
