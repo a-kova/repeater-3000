@@ -88,7 +88,7 @@ export async function rateCard(
   card: typeof cardsTable.$inferSelect,
   rating: Rating
 ) {
-  let newCardData = { ...card };
+  let { id, ...newCardData } = card;
 
   const previews = f.repeat(getFSRSDataFromCardData(card), new Date());
 
@@ -101,10 +101,7 @@ export async function rateCard(
     }
   }
 
-  await db
-    .update(cardsTable)
-    .set(newCardData)
-    .where(eq(cardsTable.id, card.id));
+  await db.update(cardsTable).set(newCardData).where(eq(cardsTable.id, id));
 }
 
 export async function deleteCard(params: Pick<CardItem, 'word' | 'chat_id'>) {
