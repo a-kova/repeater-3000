@@ -1,13 +1,7 @@
 import { Markup, Scenes } from 'telegraf';
-import { cardsTable, db } from '../../../services/db/index.js';
-import { eq } from 'drizzle-orm';
-import { updateFSRSData } from '../../fsrs.js';
-import {
-  convertFSRSDataToCardData,
-  getFSRSDataFromCardData,
-} from '../../../helpers/index.js';
-import { CustomContext } from '..';
 import { Rating } from 'ts-fsrs';
+import { CustomContext } from '..';
+import { rateCard } from '../../../repositories/card.js';
 
 const ratingMap = {
   '❌ No': Rating.Again,
@@ -44,16 +38,12 @@ scene.on('text', async (ctx) => {
 
   const rating = ratingMap[ctx.text as keyof typeof ratingMap];
   const card = ctx.scene.session.cards!.shift()!;
-  const fsrsData = updateFSRSData(getFSRSDataFromCardData(card), rating);
 
-  await db
-    .update(cardsTable)
-    .set(convertFSRSDataToCardData(fsrsData))
-    .where(eq(cardsTable.id, card.id));
+  await rateCard(card, rating);
 
   if (rating < Rating.Good && card.meaning && card.example) {
     await ctx.replyWithHTML(
-      `<b>Meaning:</b> ${card.meaning}\n\n<b>Example:</b> ${card.example}`
+      `<b>Translation:</b> ${card.translation}\n\n<b>Meaning:</b> ${card.meaning}\n\n<b>Example:</b> ${card.example}`
     );
   }
 

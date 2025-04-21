@@ -6,8 +6,12 @@ import {
   notificationTimeScene,
   repeatWordsScene,
 } from './scenes/index.js';
-import { cardsTable, chatsTable, db } from '../db/index.js';
-import { eq } from 'drizzle-orm';
+import { cardsTable } from '../db/index.js';
+import {
+  getAllCardsForChat,
+  getCardsForToday,
+} from '../../repositories/card.js';
+import { createChat, deleteChat } from '../../repositories/chat.js';
 
 interface CustomSceneSession extends Scenes.SceneSessionData {
   cards?: (typeof cardsTable.$inferSelect)[];
@@ -33,10 +37,12 @@ function initializeBot() {
   bot.start(async (ctx) => {
     await ctx.sendChatAction('typing');
 
-    await db
-      .insert(chatsTable)
-      .values({ id: ctx.chat.id, username: ctx.from.username })
-      .onConflictDoNothing();
+    await createChat({
+      id: ctx.chat.id,
+      first_name: ctx.from.first_name,
+      last_name: ctx.from.last_name,
+      username: ctx.from.username,
+    });
 
     const introLines = [
       '🤖 Yo! I’m Repeater 3000!',
@@ -60,11 +66,7 @@ function initializeBot() {
     await ctx.sendChatAction('typing');
 
     const chatId = ctx.chat.id;
-
-    const cards = await db.query.cardsTable.findMany({
-      where: (table, { eq }) => eq(table.chat_id, chatId),
-      orderBy: (table) => table.word,
-    });
+    const cards = await getAllCardsForChat(chatId);
 
     if (cards.length === 0) {
       return await ctx.reply('No words found.');
@@ -80,19 +82,14 @@ function initializeBot() {
   bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
 
   bot.command('quit', async (ctx) => {
-    await db.delete(cardsTable).where(eq(cardsTable.chat_id, ctx.chat.id));
-    await db.delete(chatsTable).where(eq(chatsTable.id, ctx.chat.id));
+    await deleteChat(ctx.chat.id);
+    await ctx.reply('Bye! I will not bother you anymore.');
     await ctx.leaveChat();
   });
 
   bot.action('start_repeat', async (ctx) => {
     const chatId = ctx.chat!.id;
-    const now = new Date();
-
-    const cards = await db.query.cardsTable.findMany({
-      where: (table, { and, eq, lte }) =>
-        and(eq(table.chat_id, chatId), lte(table.due, now)),
-    });
+    const cards = await getCardsForToday(chatId);
 
     if (cards.length === 0) {
       return await ctx.reply('No words for today.');
@@ -115,8 +112,6 @@ function initializeBot() {
 
 export async function attachTelegrafToServer(server: FastifyInstance) {
   const bot = initializeBot();
-
-  console.log('Bot initialized', process.env.HOST);
 
   const webhook = await bot.createWebhook({ domain: process.env.HOST });
 

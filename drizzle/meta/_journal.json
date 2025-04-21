@@ -64,6 +64,27 @@
       "when": 1745178538806,
       "tag": "0008_nifty_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1745234806065,
+      "tag": "0009_shocking_abomination",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1745236153980,
+      "tag": "0010_nebulous_mandroid",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1745236495517,
+      "tag": "0011_typical_shatterstar",
+      "breakpoints": true
     }
   ]
 }

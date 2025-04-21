@@ -17,3 +17,11 @@ export async function getUsageExampleForWord(word: string) {
 
   return response.text.trim();
 }
+
+export async function getRussianTranslationForWord(word: string) {
+  const response = await chatGPT.sendMessage(
+    `Translate the word "${word}" to Russian.`
+  );
+
+  return response.text.trim();
+}

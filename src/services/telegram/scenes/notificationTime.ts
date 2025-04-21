@@ -1,7 +1,6 @@
 import { Markup, Scenes } from 'telegraf';
-import { chatsTable, db } from '../../../services/db/index.js';
-import { eq } from 'drizzle-orm';
 import { CustomContext } from '..';
+import { updateChat } from '../../../repositories/chat.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('notificationTime');
 
@@ -39,17 +38,12 @@ scene.on('text', async (ctx) => {
     return;
   }
 
-  await db
-    .update(chatsTable)
-    .set({ notification_time: time })
-    .where(eq(chatsTable.id, chatId));
+  await updateChat(chatId, { notification_time: time });
 
   await ctx.reply(`Notification time updated to ${time}.`);
   await ctx.scene.leave();
 });
 
-scene.on('message', async (ctx) => {
-  await ctx.scene.leave();
-});
+scene.on('message', (ctx) => ctx.scene.leave());
 
 export default scene;

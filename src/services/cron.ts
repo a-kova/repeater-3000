@@ -7,6 +7,7 @@ import { NotionClient, PageData } from './notion.js';
 import { getMeaningOfWord, getUsageExampleForWord } from './openai.js';
 import { createNewFSRSData } from './fsrs.js';
 import { convertFSRSDataToCardData } from '../helpers/index.js';
+import { updateChat } from '../repositories/chat.js';
 
 async function handleNotionPageUpdate(
   notionClient: NotionClient,
@@ -104,10 +105,7 @@ export function startCronJobs() {
         }
       } while (nextCursor);
 
-      await db
-        .update(chatsTable)
-        .set({ notion_synced_at: new Date() })
-        .where(eq(chatsTable.id, chat.id));
+      await updateChat(chat.id, { notion_synced_at: new Date() });
     }
   });
 }

@@ -1,0 +1,128 @@
+import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
+import { cardsTable, chatsTable, db } from '../services/db/index.js';
+import {
+  getMeaningOfWord,
+  getRussianTranslationForWord,
+  getUsageExampleForWord,
+} from '../services/openai.js';
+import { getFSRSDataFromCardData } from '../helpers/index.js';
+import { and, eq } from 'drizzle-orm';
+
+type CardItem = typeof cardsTable.$inferSelect;
+
+const f = fsrs(
+  generatorParameters({
+    enable_fuzz: true,
+    enable_short_term: false,
+  })
+);
+
+async function populatePaidData(data: typeof cardsTable.$inferInsert) {
+  const existingCard = await db.query.cardsTable.findFirst({
+    where: (table, { and, eq, isNotNull }) =>
+      and(
+        eq(table.word, data.word),
+        isNotNull(table.translation),
+        isNotNull(table.meaning),
+        isNotNull(table.example)
+      ),
+    columns: { translation: true, meaning: true, example: true },
+  });
+
+  if (existingCard) {
+    return { ...data, ...existingCard };
+  }
+
+  const [translation, meaning, example] = await Promise.all([
+    getRussianTranslationForWord(data.word),
+    getMeaningOfWord(data.word),
+    getUsageExampleForWord(data.word),
+  ]);
+
+  return { ...data, translation, meaning, example };
+}
+
+export async function getAllCardsForChat(chatId: number) {
+  return await db.query.cardsTable.findMany({
+    where: (table, { eq }) => eq(table.chat_id, chatId),
+    orderBy: (table) => table.word,
+  });
+}
+
+export async function cardExists(data: Pick<CardItem, 'word' | 'chat_id'>) {
+  const card = await db.query.cardsTable.findFirst({
+    where: (table, { and, eq }) =>
+      and(eq(table.word, data.word), eq(table.chat_id, data.chat_id)),
+    columns: { id: true },
+  });
+
+  return !!card;
+}
+
+export async function createCardForChat(
+  word: string,
+  chat: typeof chatsTable.$inferSelect
+) {
+  const fsrsData = createEmptyCard(new Date());
+
+  let data: typeof cardsTable.$inferInsert = {
+    ...fsrsData,
+    stability: fsrsData.stability.toString(),
+    difficulty: fsrsData.difficulty.toString(),
+    last_review: fsrsData.last_review || null,
+    word,
+    chat_id: chat.id,
+  };
+
+  if (chat.is_paid) {
+    data = await populatePaidData(data);
+  }
+
+  const res = await db.insert(cardsTable).values(data).returning();
+
+  return res[0];
+}
+
+export async function rateCard(
+  card: typeof cardsTable.$inferSelect,
+  rating: Rating
+) {
+  let newCardData = { ...card };
+
+  const previews = f.repeat(getFSRSDataFromCardData(card), new Date());
+
+  for (const preview of previews) {
+    if (preview.log.rating === rating) {
+      newCardData = {
+        ...newCardData,
+        ...preview.card,
+        stability: preview.card.stability.toString(),
+        difficulty: preview.card.difficulty.toString(),
+        last_review: preview.card.last_review || null,
+      };
+    }
+  }
+
+  await db
+    .update(cardsTable)
+    .set(newCardData)
+    .where(eq(cardsTable.id, card.id));
+}
+
+export async function deleteCard(params: Pick<CardItem, 'word' | 'chat_id'>) {
+  return await db
+    .delete(cardsTable)
+    .where(
+      and(
+        eq(cardsTable.chat_id, params.chat_id),
+        eq(cardsTable.word, params.word)
+      )
+    );
+}
+
+export async function getCardsForToday(chatId: number) {
+  return await db.query.cardsTable.findMany({
+    where: (table, { and, eq, lte }) =>
+      and(eq(table.chat_id, chatId), lte(table.due, new Date())),
+  });
+}

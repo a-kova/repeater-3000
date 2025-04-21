@@ -10,6 +10,8 @@ import {
 
 export const chatsTable = pgTable('chats', {
   id: integer('id').primaryKey(),
+  first_name: varchar('first_name', { length: 255 }),
+  last_name: varchar('last_name', { length: 255 }),
   username: varchar('username', { length: 255 }),
   is_active: boolean('is_active').notNull().default(true),
   is_paid: boolean('is_paid').notNull().default(false),
@@ -27,9 +29,10 @@ export const cardsTable = pgTable(
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     chat_id: integer('chat_id')
       .notNull()
-      .references(() => chatsTable.id),
+      .references(() => chatsTable.id, { onDelete: 'cascade' }),
     notion_page_id: varchar('notion_page_id', { length: 255 }).unique(),
     word: varchar('word', { length: 255 }).notNull(),
+    translation: varchar('translation', { length: 255 }),
     meaning: varchar('meaning', { length: 255 }),
     example: varchar('example', { length: 255 }),
     due: timestamp('due').notNull(),
