@@ -70,7 +70,9 @@ function initializeBot() {
       return await ctx.reply('No words found.');
     }
 
-    const list = cards.map((word, index) => `${index + 1}. ${word}`).join('\n');
+    const list = cards
+      .map((card, index) => `${index + 1}. ${card.word}`)
+      .join('\n');
 
     await ctx.replyWithHTML(list);
   });
