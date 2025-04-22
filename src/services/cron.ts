@@ -34,7 +34,7 @@ async function handleNotionPageUpdate(
 }
 
 export function startCronJobs() {
-  // Notify users about their cards
+  // Notify users about repeating words
   cron.schedule('0 * * * *', async () => {
     const now = new Date();
     const hour = now.getUTCHours() + 1;
@@ -51,11 +51,17 @@ export function startCronJobs() {
       return;
     }
 
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+
     const cards = await db
       .select({ count: count(), chat_id: cardsTable.chat_id })
       .from(cardsTable)
       .where(
-        and(inArray(cardsTable.chat_id, chatIds), lte(cardsTable.due, now))
+        and(
+          inArray(cardsTable.chat_id, chatIds),
+          lte(cardsTable.due, startOfToday)
+        )
       )
       .groupBy(cardsTable.chat_id);
 
