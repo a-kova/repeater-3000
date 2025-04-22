@@ -51,8 +51,8 @@ export function startCronJobs() {
       return;
     }
 
-    const startOfToday = new Date();
-    startOfToday.setUTCHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setUTCHours(23, 59, 59, 999);
 
     const cards = await db
       .select({ count: count(), chat_id: cardsTable.chat_id })
@@ -60,7 +60,7 @@ export function startCronJobs() {
       .where(
         and(
           inArray(cardsTable.chat_id, chatIds),
-          lte(cardsTable.due, startOfToday)
+          lte(cardsTable.due, endOfToday)
         )
       )
       .groupBy(cardsTable.chat_id);

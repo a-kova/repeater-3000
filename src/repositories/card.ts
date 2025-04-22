@@ -116,11 +116,11 @@ export async function deleteCard(params: Pick<CardItem, 'word' | 'chat_id'>) {
 }
 
 export async function getCardForToday(chatId: number) {
-  const startOfToday = new Date();
-  startOfToday.setUTCHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setUTCHours(23, 59, 59, 999);
 
   return await db.query.cardsTable.findFirst({
     where: (table, { and, eq, lte }) =>
-      and(eq(table.chat_id, chatId), lte(table.due, startOfToday)),
+      and(eq(table.chat_id, chatId), lte(table.due, endOfToday)),
   });
 }
