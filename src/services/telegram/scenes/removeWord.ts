@@ -1,13 +1,23 @@
-import { Scenes } from 'telegraf';
+import { Markup, Scenes } from 'telegraf';
 import { CustomContext } from '..';
-import { cardExists, deleteCard } from '../../../repositories/card.js';
+import {
+  cardExists,
+  deleteCard,
+  getAllCardsForChat,
+} from '../../../repositories/card.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('removeWord');
 
 scene.enter(async (ctx) => {
-  // TODO: Select word from keyboard?
+  await ctx.sendChatAction('typing');
 
-  await ctx.reply('Please enter the word you want to remove:');
+  const cards = await getAllCardsForChat(ctx.chat!.id);
+  const words = cards.map((card) => card.word);
+
+  await ctx.reply(
+    'Please enter the word you want to remove:',
+    Markup.keyboard(words, { columns: 2 }).oneTime()
+  );
 });
 
 scene.on('text', async (ctx) => {
@@ -26,13 +36,17 @@ scene.on('text', async (ctx) => {
 
     await deleteCard({ word, chat_id: chatId });
 
-    await ctx.reply(`The word "${word}" has been removed successfully!`);
-    await ctx.scene.leave();
+    await ctx.reply(
+      `The word "${word}" has been removed successfully!`,
+      Markup.removeKeyboard()
+    );
   } catch (error) {
     console.error('Error removing word:', error);
     await ctx.reply(
-      'An error occurred while removing the word. Please try again later.'
+      'An error occurred while removing the word. Please try again later.',
+      Markup.removeKeyboard()
     );
+  } finally {
     await ctx.scene.leave();
   }
 });
