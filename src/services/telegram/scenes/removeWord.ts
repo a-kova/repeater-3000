@@ -15,7 +15,7 @@ scene.enter(async (ctx) => {
   const words = cards.map((card) => card.word);
 
   await ctx.reply(
-    'Please enter the word you want to remove:',
+    'Type the word you want to remove or select it from the list:',
     Markup.keyboard(words, { columns: 2 }).oneTime()
   );
 });
