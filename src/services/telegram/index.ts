@@ -1,11 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { Markup, Scenes, session, Telegraf } from 'telegraf';
 import {
-  addWordScene,
   removeWordScene,
   notificationTimeScene,
   repeatWordsScene,
 } from './scenes/index.js';
+import addWord from './handlers/addWord.js';
 import { cardsTable } from '../db/index.js';
 import { getAllCardsForChat } from '../../repositories/card.js';
 import { createChat, deleteChat } from '../../repositories/chat.js';
@@ -22,7 +22,6 @@ function initializeBot() {
   bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
   const stage = new Scenes.Stage<CustomContext>([
-    addWordScene,
     removeWordScene,
     notificationTimeScene,
     repeatWordsScene,
@@ -49,13 +48,24 @@ function initializeBot() {
       '🕒 Remind you to study — at a time <i>you</i> choose',
       '📝 Help you learn the words <i>you</i> pick',
       '',
-      'Type /add_word to send me a word to get rolling, or /time to set your reminder! 🎯',
+      'Just send me a word to get rolling, or /time to set your reminder! 🎯',
     ];
 
     await ctx.replyWithHTML(introLines.join('\n'));
   });
 
-  bot.command('add_word', (ctx) => ctx.scene.enter('addWord'));
+  bot.on('text', async (ctx) => {
+    await ctx.sendChatAction('typing');
+
+    const chatId = ctx.chat.id;
+    const word = ctx.message.text.trim().toLowerCase();
+
+    const message = await addWord(chatId, word);
+
+    await ctx.replyWithHTML(message, {
+      reply_markup: { remove_keyboard: true },
+    });
+  });
 
   bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
 

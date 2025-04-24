@@ -20,7 +20,6 @@ export const chatsTable = pgTable('chats', {
   ),
   notion_api_key: varchar('notion_api_key', { length: 255 }),
   notion_database_id: varchar('notion_database_id', { length: 255 }),
-  notion_synced_at: timestamp('notion_synced_at'),
 });
 
 export const cardsTable = pgTable(
@@ -30,7 +29,6 @@ export const cardsTable = pgTable(
     chat_id: integer('chat_id')
       .notNull()
       .references(() => chatsTable.id, { onDelete: 'cascade' }),
-    notion_page_id: varchar('notion_page_id', { length: 255 }).unique(),
     word: varchar('word', { length: 255 }).notNull(),
     translation: varchar('translation', { length: 255 }),
     example: varchar('example', { length: 255 }),

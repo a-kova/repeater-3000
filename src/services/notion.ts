@@ -7,7 +7,6 @@ export type PageData = {
   word: string;
   translation: string;
   example: string;
-  archived: boolean;
 };
 
 export class NotionClient {
@@ -20,44 +19,47 @@ export class NotionClient {
     this.databaseId = databaseId;
   }
 
-  async getAllPagesFromDbEditedAfter(
-    since: Date,
-    nextCursor?: string
-  ): Promise<{ items: PageData[]; nextCursor?: string }> {
+  async findPageForWord(word: string): Promise<PageData | null> {
     const response = await this.client.databases.query({
       database_id: this.databaseId,
-      start_cursor: nextCursor || undefined,
       filter: {
-        timestamp: 'last_edited_time',
-        last_edited_time: {
-          on_or_after: since.toISOString(),
+        property: 'Word',
+        rich_text: {
+          equals: word,
         },
       },
     });
 
-    return {
-      items: (response.results as PageObjectResponse[]).map((page) => {
-        const properties = page.properties as any;
+    if (response.results.length === 0) {
+      return null;
+    }
 
-        return {
-          id: page.id,
-          word: properties.Word.title[0].text.content,
-          translation: properties.Translation.rich_text[0]?.text.content || '',
-          example: properties.Example.rich_text[0]?.text.content || '',
-          archived: page.archived,
-        };
-      }),
-      nextCursor: response.next_cursor || undefined,
+    const page = response.results[0] as PageObjectResponse;
+    const properties = page.properties as any;
+
+    return {
+      id: page.id,
+      word: word,
+      translation: properties.Translation.rich_text[0]?.text.content || '',
+      example: properties.Example.rich_text[0]?.text.content || '',
     };
   }
 
-  async updatePageForCard(
-    pageId: string,
-    card: typeof cardsTable.$inferSelect
-  ) {
-    return await this.client.pages.update({
-      page_id: pageId,
+  async createPageForCard(card: typeof cardsTable.$inferSelect) {
+    return await this.client.pages.create({
+      parent: {
+        database_id: this.databaseId,
+      },
       properties: {
+        Word: {
+          title: [
+            {
+              text: {
+                content: card.word,
+              },
+            },
+          ],
+        },
         Translation: {
           rich_text: [
             {
@@ -77,6 +79,19 @@ export class NotionClient {
           ],
         },
       },
+    });
+  }
+
+  async deletePageForWord(word: string) {
+    const page = await this.findPageForWord(word);
+
+    if (!page) {
+      return null;
+    }
+
+    return await this.client.pages.update({
+      page_id: page.id,
+      archived: true,
     });
   }
 }

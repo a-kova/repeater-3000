@@ -5,6 +5,8 @@ import {
   deleteCard,
   getAllCardsForChat,
 } from '../../../repositories/card.js';
+import { getChatById } from '../../../repositories/chat';
+import { NotionClient } from '../../notion';
 
 const scene = new Scenes.BaseScene<CustomContext>('removeWord');
 
@@ -13,6 +15,11 @@ scene.enter(async (ctx) => {
 
   const cards = await getAllCardsForChat(ctx.chat!.id);
   const words = cards.map((card) => card.word);
+
+  if (!words.length) {
+    await ctx.reply('No words found in your list.');
+    return await ctx.scene.leave();
+  }
 
   await ctx.reply(
     'Type the word you want to remove or select it from the list:',
@@ -23,8 +30,9 @@ scene.enter(async (ctx) => {
 scene.on('text', async (ctx) => {
   await ctx.sendChatAction('typing');
 
-  const chatId = ctx.chat.id;
   const word = ctx.message.text.trim().toLowerCase();
+  const chatId = ctx.chat!.id;
+  const chat = (await getChatById(chatId))!;
 
   try {
     const exists = await cardExists({ word, chat_id: chatId });
@@ -35,6 +43,17 @@ scene.on('text', async (ctx) => {
     }
 
     await deleteCard({ word, chat_id: chatId });
+
+    if (chat.notion_api_key && chat.notion_database_id) {
+      const notion = new NotionClient(
+        chat.notion_api_key,
+        chat.notion_database_id
+      );
+
+      notion.deletePageForWord(word).catch((error) => {
+        console.error('Error deleting page in Notion:', error);
+      });
+    }
 
     await ctx.reply(
       `The word "${word}" has been removed successfully!`,
