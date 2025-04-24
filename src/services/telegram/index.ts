@@ -54,19 +54,6 @@ function initializeBot() {
     await ctx.replyWithHTML(introLines.join('\n'));
   });
 
-  bot.on('text', async (ctx) => {
-    await ctx.sendChatAction('typing');
-
-    const chatId = ctx.chat.id;
-    const word = ctx.message.text.trim().toLowerCase();
-
-    const message = await addWord(chatId, word);
-
-    await ctx.replyWithHTML(message, {
-      reply_markup: { remove_keyboard: true },
-    });
-  });
-
   bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
 
   bot.command('list_words', async (ctx) => {
@@ -101,6 +88,19 @@ function initializeBot() {
   bot.action('postpone_repeat', (ctx) =>
     ctx.reply('Okay, I will remind you tomorrow.')
   );
+
+  bot.on('text', async (ctx) => {
+    await ctx.sendChatAction('typing');
+
+    const chatId = ctx.chat.id;
+    const word = ctx.message.text.trim().toLowerCase();
+
+    const message = await addWord(chatId, word);
+
+    await ctx.replyWithHTML(message, {
+      reply_markup: { remove_keyboard: true },
+    });
+  });
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));
