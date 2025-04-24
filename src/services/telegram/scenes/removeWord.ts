@@ -5,8 +5,8 @@ import {
   deleteCard,
   getAllCardsForChat,
 } from '../../../repositories/card.js';
-import { getChatById } from '../../../repositories/chat';
-import { NotionClient } from '../../notion';
+import { getChatById } from '../../../repositories/chat.js';
+import { NotionClient } from '../../notion.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('removeWord');
 
