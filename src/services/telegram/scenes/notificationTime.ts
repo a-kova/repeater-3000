@@ -1,5 +1,5 @@
 import { Markup, Scenes } from 'telegraf';
-import { CustomContext } from '..';
+import { CustomContext } from '../index.js';
 import { updateChat } from '../../../repositories/chat.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('notificationTime');

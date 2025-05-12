@@ -39,6 +39,7 @@ export const cardsTable = pgTable(
     scheduled_days: integer('scheduled_days').notNull(),
     reps: integer('reps').notNull(),
     lapses: integer('lapses').notNull(),
+    learning_steps: integer('learning_steps').notNull().default(0),
     state: integer('state').notNull(),
     last_review: timestamp('last_review'),
     created_at: timestamp('created_at').defaultNow(),

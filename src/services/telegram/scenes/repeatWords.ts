@@ -1,6 +1,6 @@
 import { Markup, Scenes } from 'telegraf';
 import { Rating } from 'ts-fsrs';
-import { CustomContext } from '..';
+import { CustomContext } from '../index.js';
 import { getCardForToday, rateCard } from '../../../repositories/card.js';
 
 const ratingMap = {

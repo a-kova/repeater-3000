@@ -1,5 +1,5 @@
 import { Markup, Scenes } from 'telegraf';
-import { CustomContext } from '..';
+import { CustomContext } from '../index.js';
 import {
   cardExists,
   deleteCard,
