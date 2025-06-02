@@ -1,5 +1,5 @@
 import removeWordScene from './removeWord.js';
 import notificationTimeScene from './notificationTime.js';
-import repeatWordsScene from './repeatWords.js';
+import lessonScene from './lesson/index.js';
 
-export { removeWordScene, notificationTimeScene, repeatWordsScene };
+export { removeWordScene, notificationTimeScene, lessonScene };

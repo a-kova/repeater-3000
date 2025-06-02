@@ -41,3 +41,10 @@ export function getFSRSDataFromCardData(
     last_review: card.last_review || undefined,
   };
 }
+
+export function shuffle<T>(arr: T[]): T[] {
+  return arr
+    .map((v) => [v, Math.random()] as const)
+    .sort((a, b) => a[1] - b[1])
+    .map(([v]) => v);
+}

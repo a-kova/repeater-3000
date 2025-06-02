@@ -3,15 +3,17 @@ import { Markup, Scenes, session, Telegraf } from 'telegraf';
 import {
   removeWordScene,
   notificationTimeScene,
-  repeatWordsScene,
+  lessonScene,
 } from './scenes/index.js';
 import addWord from './handlers/addWord.js';
 import { cardsTable } from '../db/index.js';
 import { getAllCardsForChat } from '../../repositories/card.js';
 import { createChat, deleteChat } from '../../repositories/chat.js';
+import { LessonType } from './scenes/lesson/index.js';
 
 interface CustomSceneSession extends Scenes.SceneSessionData {
   card?: typeof cardsTable.$inferSelect;
+  lessonType?: LessonType;
 }
 
 export type CustomContext = Scenes.SceneContext<CustomSceneSession>;
@@ -24,7 +26,7 @@ function initializeBot() {
   const stage = new Scenes.Stage<CustomContext>([
     removeWordScene,
     notificationTimeScene,
-    repeatWordsScene,
+    lessonScene,
   ]);
 
   bot.use(session());
@@ -66,16 +68,18 @@ function initializeBot() {
       return await ctx.reply('No words found.');
     }
 
-    const list = cards
-      .map((card, index) => `${index + 1}. ${card.word}`)
-      .join('\n');
+    let list = cards.map((card, index) => `${index + 1}. ${card.word}`);
 
-    await ctx.replyWithHTML(list);
+    if (list.length >= 100) {
+      list.push('...');
+    }
+
+    await ctx.replyWithHTML(list.join('\n'));
   });
 
   bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
 
-  bot.command('repeat_now', (ctx) => ctx.scene.enter('repeatWords'));
+  bot.command('repeat_now', (ctx) => ctx.scene.enter('lesson'));
 
   bot.command('quit', async (ctx) => {
     await deleteChat(ctx.chat.id);
@@ -83,7 +87,7 @@ function initializeBot() {
     await ctx.leaveChat();
   });
 
-  bot.action('start_repeat', (ctx) => ctx.scene.enter('repeatWords'));
+  bot.action('start_repeat', (ctx) => ctx.scene.enter('lesson'));
 
   bot.action('postpone_repeat', (ctx) =>
     ctx.reply('Okay, I will remind you tomorrow.')
@@ -133,7 +137,7 @@ export async function notifyUser(chatId: number, wordsCount: number) {
   bot.telegram.sendMessage(chatId, message, {
     parse_mode: 'HTML',
     ...Markup.inlineKeyboard([
-      Markup.button.callback('No', 'postpone_repeat'),
+      Markup.button.callback('Not now', 'postpone_repeat'),
       Markup.button.callback('Yes', 'start_repeat'),
     ]),
   });

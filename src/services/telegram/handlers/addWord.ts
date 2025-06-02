@@ -9,7 +9,6 @@ export default async function addWord(chatId: number, word: string) {
 
   try {
     const chat = await getChatById(chatId);
-
     const exists = await cardExists({ word, chat_id: chatId });
 
     if (exists) {
