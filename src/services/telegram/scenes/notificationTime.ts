@@ -4,7 +4,7 @@ import { updateChat } from '../../../repositories/chat.js';
 
 const scene = new Scenes.BaseScene<CustomContext>('notificationTime');
 
-const timeOptions = [];
+const timeOptions = ['Turn off'];
 
 for (let i = 0; i < 24; i++) {
   timeOptions.push(`${i < 10 ? '0' : ''}${i}:00`);
@@ -32,6 +32,13 @@ scene.on('text', async (ctx) => {
   const time = ctx.message.text;
 
   await ctx.sendChatAction('typing');
+
+  if (time === 'Turn off') {
+    await updateChat(chatId, { notification_time: null });
+    await ctx.reply('Daily notifications have been turned off.');
+    await ctx.scene.leave();
+    return;
+  }
 
   if (!/^\d{2}:\d{2}$/.test(time)) {
     await ctx.reply('Please enter a valid time in HH:MM format.');
