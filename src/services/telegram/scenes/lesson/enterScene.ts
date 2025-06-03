@@ -34,14 +34,15 @@ async function promptRate(ctx: CustomContext) {
 
   await ctx.replyWithHTML(
     lines.join('\n'),
-    Markup.keyboard(Object.keys(RATING_MAP), { columns: 2 }).oneTime().resize()
+    Markup.keyboard(Object.keys(RATING_MAP), { columns: 2 }).resize()
   );
 }
 
 async function promptType(ctx: CustomContext) {
   const { translation } = ctx.scene.session.card!;
   await ctx.replyWithHTML(
-    `Type the word for this translation: <b>${translation}</b>`
+    `Type the word for this translation: <b>${translation}</b>`,
+    Markup.removeKeyboard()
   );
 }
 
