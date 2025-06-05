@@ -4,7 +4,7 @@ import { RATING_MAP } from './index.js';
 import type { CustomContext } from '../../index.js';
 import { rateCard } from '../../../../repositories/card.js';
 
-const normalise = (s: string) => s.toLowerCase().replace(/^to\s+/, '');
+const normalise = (s: string) => s.toLowerCase().replace(/^(to|a)\s+/, '');
 
 export function attachAnswerHandlers(scene: Scenes.BaseScene<CustomContext>) {
   scene.on('text', async (ctx) => {
@@ -49,6 +49,20 @@ export function attachAnswerHandlers(scene: Scenes.BaseScene<CustomContext>) {
           await rateCard(card, isRight ? Rating.Good : Rating.Again);
 
           await (isRight
+            ? ctx.reply('Correct! Well done!')
+            : ctx.replyWithHTML(
+                `Wrong. The correct word is: <b>${card.word}</b>`
+              ));
+
+          return ctx.scene.reenter();
+        }
+
+        case 'missing_word': {
+          const isCorrect = normalise(userInput) === normalise(card.word);
+
+          await rateCard(card, isCorrect ? Rating.Good : Rating.Again);
+
+          await (isCorrect
             ? ctx.reply('Correct! Well done!')
             : ctx.replyWithHTML(
                 `Wrong. The correct word is: <b>${card.word}</b>`

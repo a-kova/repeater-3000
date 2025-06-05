@@ -63,6 +63,14 @@ async function promptSelect(ctx: CustomContext) {
   );
 }
 
+async function promptMissingWord(ctx: CustomContext) {
+  const { word, example } = ctx.scene.session.card!;
+  await ctx.replyWithHTML(
+    `Complete the sentence: <b>${example?.replace(word, '______')}</b>`,
+    Markup.removeKeyboard()
+  );
+}
+
 export function attachEnterSceneHandler(
   scene: Scenes.BaseScene<CustomContext>
 ) {
@@ -93,6 +101,15 @@ export function attachEnterSceneHandler(
       case 'type':
         await promptType(ctx);
         break;
+      case 'missing_word':
+        await promptMissingWord(ctx);
+        break;
+      default:
+        await ctx.reply(
+          'Unknown lesson type, please try again later.',
+          Markup.removeKeyboard()
+        );
+        return ctx.scene.leave();
     }
   });
 }
