@@ -101,7 +101,7 @@ export async function getRussianTranslationForSentence(
     throw new Error('Unexpected tool call format');
   }
 
-  return JSON.parse(toolCall.function.arguments);
+  return JSON.parse(toolCall.function.arguments).translation;
 }
 
 export async function getUsageExampleForWord(word: string) {
