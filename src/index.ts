@@ -1,9 +1,6 @@
 import fastify from 'fastify';
 import { attachTelegrafToServer } from './services/telegram/index.js';
-import {
-  getRussianTranslationForSentence,
-  getUsageExampleForWord,
-} from './services/openai.js';
+import { getRussianTranslationForSentence } from './services/openai.js';
 import { startCronJobs } from './services/cron.js';
 import { cardsTable, db } from './services/db/index.js';
 import { eq } from 'drizzle-orm';
@@ -21,34 +18,23 @@ async function run() {
     reply.send({ status: 'ok' });
   });
 
-  server.get('/translate-examples', async (_req, reply) => {
-    const cards = await db.query.cardsTable.findMany();
-
-    const promises = cards.map(async (card) => {
-      if (!card.example) {
-        const example = await getUsageExampleForWord(card.word);
-
-        await db
-          .update(cardsTable)
-          .set({ example })
-          .where(eq(cardsTable.id, card.id))
-          .execute();
-
-        card.example = example!;
-      }
-
-      const translation = await getRussianTranslationForSentence(card.example!);
-
-      return db
-        .update(cardsTable)
-        .set({ example_translation: translation })
-        .where(eq(cardsTable.id, card.id))
-        .execute();
+  server.get('/update-translations', async (_req, reply) => {
+    const cards = await db.query.cardsTable.findMany({
+      where: (table, { isNull }) => isNull(table.translation),
     });
 
-    await Promise.all(promises);
+    cards.forEach(async (card) => {
+      const translation = await getRussianTranslationForSentence(card.word);
 
-    reply.send({ status: `Updated ${cards.length} cards with translations` });
+      await db
+        .update(cardsTable)
+        .set({ translation })
+        .where(eq(cardsTable.id, card.id));
+    });
+
+    reply.send({
+      status: `Updated ${cards.length} cards without translations`,
+    });
   });
 
   server.listen(
