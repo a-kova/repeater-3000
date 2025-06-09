@@ -4,6 +4,7 @@ import {
   integer,
   numeric,
   pgTable,
+  text,
   timestamp,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -31,7 +32,8 @@ export const cardsTable = pgTable(
       .references(() => chatsTable.id, { onDelete: 'cascade' }),
     word: varchar('word', { length: 255 }).notNull(),
     translation: varchar('translation', { length: 255 }),
-    example: varchar('example', { length: 255 }),
+    example: text('example'),
+    example_translation: text('example_translation'),
     due: timestamp('due').notNull(),
     stability: numeric('stability').notNull(),
     difficulty: numeric('difficulty').notNull(),

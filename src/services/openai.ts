@@ -53,6 +53,57 @@ export async function getRussianTranslationForWord(
   return (args.translations as string[]).join(', ');
 }
 
+export async function getRussianTranslationForSentence(
+  sentence: string
+): Promise<string> {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are a strict bilingual dictionary. Only return direct, most common Russian translation for English sentence, not synonyms or stylistic variants.',
+      },
+      {
+        role: 'user',
+        content: `Translate the English sentence "${sentence}" to Russian. Only return the most common Russian equivalents (no synonyms or variations). Respond in JSON format using the return_translations tool.`,
+      },
+    ],
+    tools: [
+      {
+        type: 'function',
+        function: {
+          name: 'return_translation',
+          description:
+            'Returns the Russian translation for a given English sentence.',
+          parameters: {
+            type: 'object',
+            properties: {
+              translation: {
+                type: 'string',
+                description: 'The Russian translation of the English sentence.',
+              },
+            },
+            required: ['translation'],
+          },
+        },
+      },
+    ],
+    tool_choice: {
+      type: 'function',
+      function: { name: 'return_translation' },
+    },
+  });
+
+  const toolCall = response.choices[0].message.tool_calls?.[0];
+
+  if (!toolCall || toolCall.function.name !== 'return_translation') {
+    throw new Error('Unexpected tool call format');
+  }
+
+  return JSON.parse(toolCall.function.arguments);
+}
+
 export async function getUsageExampleForWord(word: string) {
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',

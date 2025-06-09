@@ -39,7 +39,9 @@ async function populatePaidData(data: typeof cardsTable.$inferInsert) {
     getUsageExampleForWord(data.word),
   ]);
 
-  return { ...data, translation, example };
+  const example_translation = await getRussianTranslationForWord(example!);
+
+  return { ...data, translation, example, example_translation };
 }
 
 export async function getAllCardsForChat(chatId: number) {

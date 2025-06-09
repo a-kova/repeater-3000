@@ -64,9 +64,13 @@ async function promptSelect(ctx: CustomContext) {
 }
 
 async function promptMissingWord(ctx: CustomContext) {
-  const { word, example } = ctx.scene.session.card!;
+  const { word, example, example_translation } = ctx.scene.session.card!;
+
   await ctx.replyWithHTML(
-    `Complete the sentence: <b>${example?.replace(word, '______')}</b>`,
+    `Complete the sentence: \n\n${example_translation} \n\n <b>${example?.replace(
+      word,
+      '______'
+    )}</b>`,
     Markup.removeKeyboard()
   );
 }
@@ -78,6 +82,7 @@ export function attachEnterSceneHandler(
     await ctx.sendChatAction('typing');
 
     const card = await getCardForToday(ctx.chat!.id);
+
     if (!card) {
       await ctx.reply(
         "That's it, no more words for today.",
