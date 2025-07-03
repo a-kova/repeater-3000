@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { Markup, Scenes, session, Telegraf } from 'telegraf';
+import { message } from 'telegraf/filters';
 import {
   removeWordScene,
   notificationTimeScene,
@@ -7,7 +8,10 @@ import {
 } from './scenes/index.js';
 import addWord from './handlers/addWord.js';
 import { cardsTable } from '../db/index.js';
-import { getAllCardsForChat } from '../../repositories/card.js';
+import {
+  getAllCardsForChat,
+  getHardestCards,
+} from '../../repositories/card.js';
 import { createChat, deleteChat } from '../../repositories/chat.js';
 import { LessonType } from './scenes/lesson/index.js';
 
@@ -81,6 +85,23 @@ function initializeBot() {
 
   bot.command('repeat_now', (ctx) => ctx.scene.enter('lesson'));
 
+  bot.command('hardest', async (ctx) => {
+    await ctx.sendChatAction('typing');
+
+    const chatId = ctx.chat.id;
+    const cards = await getHardestCards(chatId);
+
+    if (cards.length < 5) {
+      return await ctx.reply('Not enough data. Keep studying! 📚');
+    }
+
+    const list = cards.map(
+      (card, index) => `${index + 1}. <b>${card.word}</b> — ${card.translation}`
+    );
+
+    await ctx.replyWithHTML(list.join('\n'));
+  });
+
   bot.command('quit', async (ctx) => {
     await deleteChat(ctx.chat.id);
     await ctx.reply('Bye! I will not bother you anymore.');
@@ -93,7 +114,7 @@ function initializeBot() {
     ctx.reply('Okay, I will remind you tomorrow.')
   );
 
-  bot.on('text', async (ctx) => {
+  bot.on(message('text'), async (ctx) => {
     await ctx.sendChatAction('typing');
 
     const chatId = ctx.chat.id;

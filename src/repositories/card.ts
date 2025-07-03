@@ -8,7 +8,7 @@ import {
   getFSRSDataFromCardData,
   convertFSRSDataToCardData,
 } from '../helpers/index.js';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 
 type CardItem = typeof cardsTable.$inferSelect;
 
@@ -139,6 +139,15 @@ export async function getRandomCards(options: {
     where: (table, { and, eq, ne }) =>
       and(eq(table.chat_id, chatId), ne(table.word, except)),
     orderBy: sql`random()`,
+    limit,
+  });
+}
+
+export async function getHardestCards(chatId: number, limit = 10) {
+  return await db.query.cardsTable.findMany({
+    where: (table, { and, eq, gt }) =>
+      and(eq(table.chat_id, chatId), gt(table.reps, 5)),
+    orderBy: (table) => [desc(table.difficulty)],
     limit,
   });
 }

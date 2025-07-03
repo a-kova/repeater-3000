@@ -1,4 +1,5 @@
 import { Markup, Scenes } from 'telegraf';
+import { message } from 'telegraf/filters';
 import { CustomContext } from '../index.js';
 import {
   cardExists,
@@ -27,7 +28,7 @@ scene.enter(async (ctx) => {
   );
 });
 
-scene.on('text', async (ctx) => {
+scene.on(message('text'), async (ctx) => {
   await ctx.sendChatAction('typing');
 
   const word = ctx.message.text.trim().toLowerCase();

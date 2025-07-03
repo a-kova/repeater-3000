@@ -1,4 +1,5 @@
 import { Scenes } from 'telegraf';
+import { message } from 'telegraf/filters';
 import { Rating } from 'ts-fsrs';
 import { RATING_MAP } from './index.js';
 import type { CustomContext } from '../../index.js';
@@ -7,7 +8,7 @@ import { rateCard } from '../../../../repositories/card.js';
 const normalise = (s: string) => s.toLowerCase().replace(/^(to|a)\s+/, '');
 
 export function attachAnswerHandlers(scene: Scenes.BaseScene<CustomContext>) {
-  scene.on('text', async (ctx) => {
+  scene.on(message('text'), async (ctx) => {
     await ctx.sendChatAction('typing');
 
     const lessonType = ctx.scene.session.lessonType;

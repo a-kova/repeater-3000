@@ -46,8 +46,8 @@ export const cardsTable = pgTable(
     last_review: timestamp('last_review'),
     created_at: timestamp('created_at').defaultNow(),
   },
-  (table) => ({
-    chatIdWordIdx: index('chat_id_word_idx').on(table.chat_id, table.word),
-    chatIdDueIdx: index('chat_id_due_idx').on(table.chat_id, table.due),
-  })
+  (table) => [
+    index('chat_id_word_idx').on(table.chat_id, table.word),
+    index('chat_id_due_idx').on(table.chat_id, table.due),
+  ]
 );
