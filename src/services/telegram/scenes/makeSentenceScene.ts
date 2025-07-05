@@ -8,14 +8,13 @@ import { checkWordUsageInSentence } from '../../openai.js';
 const scene = new Scenes.BaseScene<BotContext>('makeSentenceScene');
 
 scene.enter(async (ctx) => {
-  const { card } = ctx.scene.session;
-
-  if (!card) {
+  if (!ctx.card) {
     await ctx.reply('No card to rate.');
     return ctx.scene.leave();
   }
 
-  const { word } = ctx.scene.session.card!;
+  ctx.scene.session.card = ctx.card;
+  const { word } = ctx.card;
 
   await ctx.replyWithHTML(
     `Make a sentence with the word <b>${word}</b>`,

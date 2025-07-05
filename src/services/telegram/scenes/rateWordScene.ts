@@ -13,14 +13,13 @@ export const RATING_MAP = {
 const scene = new Scenes.BaseScene<BotContext>('rateWordScene');
 
 scene.enter(async (ctx) => {
-  const { card } = ctx.scene.session;
-
-  if (!card) {
+  if (!ctx.card) {
     await ctx.reply('No card to rate.');
     return ctx.scene.leave();
   }
 
-  const { word, translation, example } = ctx.scene.session.card!;
+  ctx.scene.session.card = ctx.card;
+  const { word, translation, example } = ctx.card;
   const lines = [`Remember this word? <b>${word}</b>`];
 
   if (translation && example) {

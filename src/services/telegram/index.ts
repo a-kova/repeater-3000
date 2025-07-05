@@ -1,4 +1,4 @@
-import { Markup, Scenes, session, Telegraf } from 'telegraf';
+import { Markup, Scenes, session, Telegraf, Context } from 'telegraf';
 import { message } from 'telegraf/filters';
 import { scenes } from './scenes/index.js';
 import { listWordsCommand, hardestWordsCommand } from './commands/index.js';
@@ -8,11 +8,14 @@ import { onMessageHandler, onStartHandler } from './handlers/index.js';
 import { TelegramLessonSceneName, Card } from '../../types.js';
 import { randomWeighted } from '../../helpers/index.js';
 
-interface CustomSceneSession extends Scenes.SceneSessionData {
+interface SceneSession extends Scenes.SceneSessionData {
   card?: Card;
 }
 
-type BotContext = Scenes.SceneContext<CustomSceneSession>;
+interface BotContext extends Context {
+  card?: Card;
+  scene: Scenes.SceneContextScene<BotContext, SceneSession>;
+}
 
 const bot = new Telegraf<BotContext>(process.env.TELEGRAM_BOT_TOKEN);
 
@@ -66,9 +69,8 @@ async function enterRandomLessonScene(ctx: BotContext) {
   };
 
   const sceneName = randomWeighted(lessonWeights);
-  ctx.scene.session.card = card;
 
-  return ctx.scene.enter(sceneName);
+  return ctx.scene.enter(sceneName, { card });
 }
 
 async function notifyUser(chatId: number, wordsCount: number) {

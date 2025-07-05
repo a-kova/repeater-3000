@@ -8,14 +8,14 @@ import { normaliseWord } from '../../../helpers/index.js';
 const scene = new Scenes.BaseScene<BotContext>('completeSentenceScene');
 
 scene.enter(async (ctx) => {
-  const { card } = ctx.scene.session;
-
-  if (!card) {
+  if (!ctx.card) {
     await ctx.reply('No card to rate.');
     return ctx.scene.leave();
   }
 
-  const { word, example, example_translation } = ctx.scene.session.card!;
+  ctx.scene.session.card = ctx.card;
+
+  const { word, example, example_translation } = ctx.card;
 
   await ctx.replyWithHTML(
     `Complete the sentence: \n\n${example_translation} \n\n <b>${example?.replace(
