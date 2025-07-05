@@ -66,8 +66,9 @@ async function enterRandomLessonScene(ctx: BotContext) {
   };
 
   const sceneName = randomWeighted(lessonWeights);
+  ctx.scene.session.card = card;
 
-  return ctx.scene.enter(sceneName, { card });
+  return ctx.scene.enter(sceneName);
 }
 
 async function notifyUser(chatId: number, wordsCount: number) {
