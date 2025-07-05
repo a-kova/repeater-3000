@@ -13,6 +13,8 @@ export const RATING_MAP = {
 const scene = new Scenes.BaseScene<BotContext>('rateWordScene');
 
 scene.enter(async (ctx) => {
+  console.log('Entering rateWordScene', ctx);
+
   if (!ctx.card) {
     await ctx.reply('No card to rate.');
     return ctx.scene.leave();
