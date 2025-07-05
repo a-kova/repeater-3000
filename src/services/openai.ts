@@ -62,11 +62,11 @@ export async function getRussianTranslationForSentence(
       {
         role: 'system',
         content:
-          'You are a strict bilingual dictionary. Only return direct, most common Russian translation for English sentence, not synonyms or stylistic variants.',
+          'You are a strict bilingual dictionary. Only return direct, most common Russian translation for English sentence, no synonyms or stylistic variants.',
       },
       {
         role: 'user',
-        content: `Translate the English sentence "${sentence}" to Russian. Only return the most common Russian equivalents (no synonyms or variations). Respond in JSON format using the return_translations tool.`,
+        content: `Translate the English sentence "${sentence}" to Russian. Respond in JSON format using the return_translations tool.`,
       },
     ],
     tools: [
@@ -158,7 +158,7 @@ export async function checkWordUsageInSentence(
               },
               comment: {
                 type: 'string',
-                description: 'Comment explaining the usage.',
+                description: 'A short comment with feedback.',
               },
             },
             required: ['is_correct', 'comment'],

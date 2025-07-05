@@ -3,6 +3,7 @@ import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
 import { cardsTable, chatsTable, db } from '../services/db/index.js';
 import {
   getRussianTranslationForWord,
+  getRussianTranslationForSentence,
   getUsageExampleForWord,
 } from '../services/openai.js';
 import {
@@ -38,7 +39,7 @@ async function populatePaidData(data: typeof cardsTable.$inferInsert) {
     getUsageExampleForWord(data.word),
   ]);
 
-  const example_translation = await getRussianTranslationForWord(example!);
+  const example_translation = await getRussianTranslationForSentence(example!);
 
   return { ...data, translation, example, example_translation };
 }
