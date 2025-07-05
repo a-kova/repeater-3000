@@ -13,8 +13,11 @@ interface SceneSession extends Scenes.SceneSessionData {
 }
 
 interface BotContext extends Context {
-  card?: Card;
-  scene: Scenes.SceneContextScene<BotContext, SceneSession>;
+  scene: Scenes.SceneContextScene<BotContext, SceneSession> & {
+    state: {
+      card?: Card;
+    };
+  };
 }
 
 const bot = new Telegraf<BotContext>(process.env.TELEGRAM_BOT_TOKEN);

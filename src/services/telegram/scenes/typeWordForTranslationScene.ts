@@ -8,13 +8,15 @@ import { normaliseWord } from '../../../helpers/index.js';
 const scene = new Scenes.BaseScene<BotContext>('typeWordForTranslationScene');
 
 scene.enter(async (ctx) => {
-  if (!ctx.card) {
+  const card = ctx.scene.state.card;
+
+  if (!card) {
     await ctx.reply('No card to rate.');
     return ctx.scene.leave();
   }
 
-  ctx.scene.session.card = ctx.card;
-  const { translation } = ctx.card;
+  ctx.scene.session.card = card;
+  const { translation } = card;
 
   await ctx.replyWithHTML(
     `Type the word for this translation: <b>${translation}</b>`,
