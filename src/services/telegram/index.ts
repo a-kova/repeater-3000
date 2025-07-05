@@ -29,7 +29,7 @@ bot.command('list_words', listWordsCommand);
 
 bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
 
-bot.command('repeat_now', (ctx) => ctx.scene.enter('lesson'));
+bot.command('repeat_now', (ctx) => enterRandomLessonScene(ctx));
 
 bot.command('hardest', hardestWordsCommand);
 
