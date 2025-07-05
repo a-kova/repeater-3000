@@ -1,10 +1,6 @@
 import fastify from 'fastify';
 import { bot } from './services/telegram/index.js';
 import { startCronJobs } from './services/cron.js';
-import { getAllCardsForChat } from './repositories/card.js';
-import { cardsTable, db } from './services/db/index.js';
-import { getRussianTranslationForSentence } from './services/openai.js';
-import { eq } from 'drizzle-orm';
 
 const server = fastify({
   logger: true,
@@ -27,28 +23,6 @@ async function run() {
 
   server.get('/health', async (_req, reply) => {
     reply.send({ status: 'ok' });
-  });
-
-  server.get('/fix', async (_req, reply) => {
-    const cards = await db.query.cardsTable.findMany({
-      where: (table, { isNotNull }) => isNotNull(table.example),
-    });
-
-    const promises = cards.map(async (card) => {
-      const example_translation = await getRussianTranslationForSentence(
-        card.example!
-      );
-      return db
-        .update(cardsTable)
-        .set({
-          example_translation,
-        })
-        .where(eq(cardsTable.id, card.id));
-    });
-
-    await Promise.all(promises);
-
-    reply.send({ status: 'ok', message: 'Translations updated successfully' });
   });
 
   server.listen(
