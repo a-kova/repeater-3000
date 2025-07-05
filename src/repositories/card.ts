@@ -1,3 +1,4 @@
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
 import { cardsTable, chatsTable, db } from '../services/db/index.js';
 import {
@@ -8,9 +9,7 @@ import {
   getFSRSDataFromCardData,
   convertFSRSDataToCardData,
 } from '../helpers/index.js';
-import { and, desc, eq, sql } from 'drizzle-orm';
-
-type CardItem = typeof cardsTable.$inferSelect;
+import type { Card } from '../types.js';
 
 const f = fsrs(
   generatorParameters({
@@ -52,7 +51,7 @@ export async function getAllCardsForChat(chatId: number) {
   });
 }
 
-export async function cardExists(data: Pick<CardItem, 'word' | 'chat_id'>) {
+export async function cardExists(data: Pick<Card, 'word' | 'chat_id'>) {
   const card = await db.query.cardsTable.findFirst({
     where: (table, { and, eq }) =>
       and(eq(table.word, data.word), eq(table.chat_id, data.chat_id)),
@@ -87,10 +86,7 @@ export async function createCardForChat(
   return res[0];
 }
 
-export async function rateCard(
-  card: typeof cardsTable.$inferSelect,
-  rating: Rating
-) {
+export async function rateCard(card: Card, rating: Rating) {
   let { id, ...newCardData } = card;
 
   const previews = f.repeat(getFSRSDataFromCardData(card), new Date());
@@ -107,7 +103,7 @@ export async function rateCard(
   await db.update(cardsTable).set(newCardData).where(eq(cardsTable.id, id));
 }
 
-export async function deleteCard(params: Pick<CardItem, 'word' | 'chat_id'>) {
+export async function deleteCard(params: Pick<Card, 'word' | 'chat_id'>) {
   return await db
     .delete(cardsTable)
     .where(
@@ -132,7 +128,7 @@ export async function getRandomCards(options: {
   chatId: number;
   except: string;
   limit?: number;
-}): Promise<CardItem[]> {
+}): Promise<Card[]> {
   const { chatId, except, limit = 3 } = options;
 
   return await db.query.cardsTable.findMany({

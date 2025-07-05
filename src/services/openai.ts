@@ -123,3 +123,61 @@ export async function getUsageExampleForWord(word: string) {
 
   return response.choices[0].message.content?.trim();
 }
+
+export async function checkWordUsageInSentence(
+  word: string,
+  sentence: string
+): Promise<{ isCorrect: boolean; comment: string }> {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are an English language expert. Determine if a word is used correctly in a sentence.',
+      },
+      {
+        role: 'user',
+        content: `Is the word "${word}" used correctly in the sentence "${sentence}"?`,
+      },
+    ],
+    temperature: 0.0,
+    tools: [
+      {
+        type: 'function',
+        function: {
+          name: 'check_usage',
+          description: 'Checks if a word is used correctly in a sentence.',
+          parameters: {
+            type: 'object',
+            properties: {
+              is_correct: {
+                type: 'boolean',
+                description:
+                  'True if the word is used correctly, false otherwise.',
+              },
+              comment: {
+                type: 'string',
+                description: 'Comment explaining the usage.',
+              },
+            },
+            required: ['is_correct', 'comment'],
+          },
+        },
+      },
+    ],
+  });
+
+  const toolCall = response.choices[0].message.tool_calls?.[0];
+
+  if (!toolCall || toolCall.function.name !== 'check_usage') {
+    throw new Error('Unexpected tool call format');
+  }
+
+  const args = JSON.parse(toolCall.function.arguments);
+
+  return {
+    isCorrect: args.is_correct,
+    comment: args.comment,
+  };
+}

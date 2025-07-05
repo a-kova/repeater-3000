@@ -1,152 +1,76 @@
-import { FastifyInstance } from 'fastify';
 import { Markup, Scenes, session, Telegraf } from 'telegraf';
 import { message } from 'telegraf/filters';
-import {
-  removeWordScene,
-  notificationTimeScene,
-  lessonScene,
-} from './scenes/index.js';
-import addWord from './handlers/addWord.js';
-import { cardsTable } from '../db/index.js';
-import {
-  getAllCardsForChat,
-  getHardestCards,
-} from '../../repositories/card.js';
-import { createChat, deleteChat } from '../../repositories/chat.js';
-import { LessonType } from './scenes/lesson/index.js';
+import { scenes } from './scenes/index.js';
+import { listWordsCommand, hardestWordsCommand } from './commands/index.js';
+import { deleteChat } from '../../repositories/chat.js';
+import { getCardForToday } from '../../repositories/card.js';
+import { onMessageHandler, onStartHandler } from './handlers/index.js';
+import { TelegramLessonSceneName, Card } from '../../types.js';
+import { randomWeighted } from '../../helpers/index.js';
 
 interface CustomSceneSession extends Scenes.SceneSessionData {
-  card?: typeof cardsTable.$inferSelect;
-  lessonType?: LessonType;
+  card?: Card;
 }
 
-export type CustomContext = Scenes.SceneContext<CustomSceneSession>;
+type BotContext = Scenes.SceneContext<CustomSceneSession>;
 
-let bot: Telegraf<CustomContext>;
+const bot = new Telegraf<BotContext>(process.env.TELEGRAM_BOT_TOKEN);
 
-function initializeBot() {
-  bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+const stage = new Scenes.Stage<BotContext>(scenes);
 
-  const stage = new Scenes.Stage<CustomContext>([
-    removeWordScene,
-    notificationTimeScene,
-    lessonScene,
-  ]);
+bot.use(session());
+bot.use(stage.middleware());
 
-  bot.use(session());
-  bot.use(stage.middleware());
+bot.start(onStartHandler);
 
-  bot.start(async (ctx) => {
-    await ctx.sendChatAction('typing');
+bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
 
-    await createChat({
-      id: ctx.chat.id,
-      first_name: ctx.from.first_name,
-      last_name: ctx.from.last_name,
-      username: ctx.from.username,
-    });
+bot.command('list_words', listWordsCommand);
 
-    const introLines = [
-      '🤖 Yo! I’m Repeater 3000!',
-      'Your pocket-sized word trainer — always ready to help! ⚡️',
-      '',
-      'Here’s what I can do for you:',
-      '🕒 Remind you to study — at a time <i>you</i> choose',
-      '📝 Help you learn the words <i>you</i> pick',
-      '',
-      'Just send me a word to get rolling, or /time to set your reminder! 🎯',
-    ];
+bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
 
-    await ctx.replyWithHTML(introLines.join('\n'));
-  });
+bot.command('repeat_now', (ctx) => ctx.scene.enter('lesson'));
 
-  bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
+bot.command('hardest', hardestWordsCommand);
 
-  bot.command('list_words', async (ctx) => {
-    await ctx.sendChatAction('typing');
+bot.command('quit', async (ctx) => {
+  await deleteChat(ctx.chat.id);
+  await ctx.reply('Bye! I will not bother you anymore.');
+  await ctx.leaveChat();
+});
 
-    const chatId = ctx.chat.id;
-    const cards = await getAllCardsForChat(chatId);
+bot.action('start_repeat', (ctx) => enterRandomLessonScene(ctx));
 
-    if (cards.length === 0) {
-      return await ctx.reply('No words found.');
-    }
+bot.action('postpone_repeat', (ctx) =>
+  ctx.reply('Okay, I will remind you tomorrow.')
+);
 
-    let list = cards.map((card, index) => `${index + 1}. ${card.word}`);
+bot.on(message('text'), onMessageHandler);
 
-    if (list.length >= 100) {
-      list.push('...');
-    }
+async function enterRandomLessonScene(ctx: BotContext) {
+  const card = await getCardForToday(ctx.chat!.id);
 
-    await ctx.replyWithHTML(list.join('\n'));
-  });
-
-  bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
-
-  bot.command('repeat_now', (ctx) => ctx.scene.enter('lesson'));
-
-  bot.command('hardest', async (ctx) => {
-    await ctx.sendChatAction('typing');
-
-    const chatId = ctx.chat.id;
-    const cards = await getHardestCards(chatId);
-
-    if (cards.length < 5) {
-      return await ctx.reply('Not enough data. Keep studying! 📚');
-    }
-
-    const list = cards.map(
-      (card, index) => `${index + 1}. <b>${card.word}</b> — ${card.translation}`
+  if (!card) {
+    return bot.telegram.sendMessage(
+      ctx.chat!.id,
+      "That's it! You have no more words to repeat today.",
+      Markup.removeKeyboard()
     );
+  }
 
-    await ctx.replyWithHTML(list.join('\n'));
-  });
+  const lessonWeights: Record<TelegramLessonSceneName, number> = {
+    rateWordScene: 0.7,
+    typeWordForTranslationScene: 0.1,
+    completeSentenceScene: 0.1,
+    makeSentenceScene: 0.1,
+  };
 
-  bot.command('quit', async (ctx) => {
-    await deleteChat(ctx.chat.id);
-    await ctx.reply('Bye! I will not bother you anymore.');
-    await ctx.leaveChat();
-  });
+  const sceneName = randomWeighted(lessonWeights);
 
-  bot.action('start_repeat', (ctx) => ctx.scene.enter('lesson'));
-
-  bot.action('postpone_repeat', (ctx) =>
-    ctx.reply('Okay, I will remind you tomorrow.')
-  );
-
-  bot.on(message('text'), async (ctx) => {
-    await ctx.sendChatAction('typing');
-
-    const chatId = ctx.chat.id;
-    const word = ctx.message.text.trim().toLowerCase();
-
-    const message = await addWord(chatId, word);
-
-    await ctx.replyWithHTML(message, {
-      reply_markup: { remove_keyboard: true },
-    });
-  });
-
-  process.once('SIGINT', () => bot.stop('SIGINT'));
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
-  return bot;
+  return ctx.scene.enter(sceneName, { card });
 }
 
-export async function attachTelegrafToServer(server: FastifyInstance) {
-  const bot = initializeBot();
-
-  const webhook = await bot.createWebhook({ domain: process.env.HOST });
-
-  server.post(`/telegraf/${bot.secretPathComponent()}`, async (req, reply) => {
-    reply.hijack();
-    // @ts-expect-error: req.raw is not a standard property
-    req.raw.body = req.body;
-    await webhook(req.raw, reply.raw);
-  });
-}
-
-export async function notifyUser(chatId: number, wordsCount: number) {
+async function notifyUser(chatId: number, wordsCount: number) {
   if (wordsCount === 0) {
     return;
   }
@@ -163,3 +87,5 @@ export async function notifyUser(chatId: number, wordsCount: number) {
     ]),
   });
 }
+
+export { bot, notifyUser, enterRandomLessonScene, BotContext };

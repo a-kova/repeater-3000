@@ -1,10 +1,22 @@
 import { cardExists, createCardForChat } from '../../../repositories/card.js';
 import { getChatById } from '../../../repositories/chat.js';
 import { NotionClient } from '../../notion.js';
+import { BotContext } from '../index.js';
 
-export default async function addWord(chatId: number, word: string) {
+export default async function onMessageHandler(ctx: BotContext) {
+  await ctx.sendChatAction('typing');
+
+  const chatId = ctx.chat!.id;
+  const message = ctx.message;
+
+  if (!message || typeof (message as any).text !== 'string') {
+    return ctx.reply('Please send a text message.');
+  }
+
+  const word = (message as { text: string }).text.trim().toLowerCase();
+
   if (word.length < 3) {
-    return 'The word must be at least 3 characters long.';
+    return ctx.reply('The word must be at least 3 characters long.');
   }
 
   try {
@@ -12,7 +24,7 @@ export default async function addWord(chatId: number, word: string) {
     const exists = await cardExists({ word, chat_id: chatId });
 
     if (exists) {
-      return 'This word already exists in your list.';
+      return ctx.reply('This word already exists in your list.');
     }
 
     const card = await createCardForChat({ word }, chat!);
@@ -38,9 +50,14 @@ export default async function addWord(chatId: number, word: string) {
       message += `\n\n<b>Example:</b> ${card.example}`;
     }
 
-    return message;
+    return ctx.replyWithHTML(message, {
+      reply_markup: { remove_keyboard: true },
+    });
   } catch (error) {
     console.error('Error adding word:', error);
-    return 'An error occurred while adding the word. Please try again.';
+
+    return ctx.reply(
+      'An error occurred while adding the word. Please try again.'
+    );
   }
 }

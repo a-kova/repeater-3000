@@ -1,9 +1,9 @@
 import { Markup, Scenes } from 'telegraf';
 import { message } from 'telegraf/filters';
-import { CustomContext } from '../index.js';
+import { BotContext } from '../index.js';
 import { updateChat } from '../../../repositories/chat.js';
 
-const scene = new Scenes.BaseScene<CustomContext>('notificationTime');
+const scene = new Scenes.BaseScene<BotContext>('setNotificationTimeScene');
 
 const timeOptions = ['Turn off'];
 

@@ -1,12 +1,14 @@
 import { Client } from '@notionhq/client';
-import { cardsTable } from './db/schema.js';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints.js';
+import type { Card } from '../types.js';
 
 export type PageData = {
   id: string;
   word: string;
   translation: string;
   example: string;
+  difficulty: number;
+  stability: number;
 };
 
 export class NotionClient {
@@ -42,10 +44,12 @@ export class NotionClient {
       word: word,
       translation: properties.Translation.rich_text[0]?.text.content || '',
       example: properties.Example.rich_text[0]?.text.content || '',
+      difficulty: properties.Difficulty.number || 0,
+      stability: properties.Stability.number || 0,
     };
   }
 
-  async createPageForCard(card: typeof cardsTable.$inferSelect) {
+  async createPageForCard(card: Card) {
     return await this.client.pages.create({
       parent: {
         database_id: this.databaseId,
@@ -77,6 +81,12 @@ export class NotionClient {
               },
             },
           ],
+        },
+        Difficulty: {
+          number: parseFloat(card.difficulty || '0'),
+        },
+        Stability: {
+          number: parseFloat(card.stability || '0'),
         },
       },
     });

@@ -1,5 +1,15 @@
-import removeWordScene from './removeWord.js';
-import notificationTimeScene from './notificationTime.js';
-import lessonScene from './lesson/index.js';
+import completeSentenceScene from './completeSentenceScene.js';
+import makeSentenceScene from './makeSentenceScene.js';
+import rateWordScene from './rateWordScene.js';
+import removeWordScene from './removeWordScene.js';
+import setNotificationTimeScene from './setNotificationTimeScene.js';
+import typeWordForTranslationScene from './typeWordForTranslationScene.js';
 
-export { removeWordScene, notificationTimeScene, lessonScene };
+export const scenes = [
+  completeSentenceScene,
+  makeSentenceScene,
+  rateWordScene,
+  removeWordScene,
+  setNotificationTimeScene,
+  typeWordForTranslationScene,
+];

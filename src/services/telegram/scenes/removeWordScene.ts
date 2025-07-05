@@ -1,6 +1,6 @@
 import { Markup, Scenes } from 'telegraf';
 import { message } from 'telegraf/filters';
-import { CustomContext } from '../index.js';
+import { BotContext } from '../index.js';
 import {
   cardExists,
   deleteCard,
@@ -9,7 +9,7 @@ import {
 import { getChatById } from '../../../repositories/chat.js';
 import { NotionClient } from '../../notion.js';
 
-const scene = new Scenes.BaseScene<CustomContext>('removeWord');
+const scene = new Scenes.BaseScene<BotContext>('removeWordScene');
 
 scene.enter(async (ctx) => {
   await ctx.sendChatAction('typing');
