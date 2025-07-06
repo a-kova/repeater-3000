@@ -28,6 +28,8 @@ scene.enter(async (ctx) => {
 
 scene.action('dontRemember', async (ctx) => {
   await ctx.answerCbQuery();
+  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+
   const { card } = ctx.scene.session;
 
   if (!card) {

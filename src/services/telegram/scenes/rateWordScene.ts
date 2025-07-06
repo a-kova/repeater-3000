@@ -51,6 +51,7 @@ scene.action(/rate:(\d+)/, async (ctx) => {
   const ratingValue = parseInt(ctx.match[1]);
   const card = ctx.scene.session.card!;
 
+  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
   await rateCard(card, ratingValue);
 
   return enterRandomLessonScene(ctx);
