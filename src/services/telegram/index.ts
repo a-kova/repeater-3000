@@ -29,23 +29,15 @@ bot.use(stage.middleware());
 
 bot.start(onStartHandler);
 
-bot.command('remove_word', (ctx) => ctx.scene.enter('removeWord'));
+bot.command('remove_word', (ctx) => ctx.scene.enter('removeWordScene'));
 
 bot.command('list_words', listWordsCommand);
 
-bot.command('time', (ctx) => ctx.scene.enter('notificationTime'));
+bot.command('time', (ctx) => ctx.scene.enter('notificationTimeScene'));
 
 bot.command('repeat_now', (ctx) => enterRandomLessonScene(ctx));
 
 bot.command('hardest', hardestWordsCommand);
-
-bot.command('exit', (ctx) => {
-  try {
-    ctx.scene.leave();
-  } catch (error) {
-    console.error('Error leaving scene:', error);
-  }
-});
 
 bot.command('quit', async (ctx) => {
   await deleteChat(ctx.chat.id);
