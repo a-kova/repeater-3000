@@ -39,7 +39,13 @@ bot.command('repeat_now', (ctx) => enterRandomLessonScene(ctx));
 
 bot.command('hardest', hardestWordsCommand);
 
-bot.command('exit', (ctx) => ctx.scene.leave());
+bot.command('exit', (ctx) => {
+  try {
+    ctx.scene.leave();
+  } catch (error) {
+    console.error('Error leaving scene:', error);
+  }
+});
 
 bot.command('quit', async (ctx) => {
   await deleteChat(ctx.chat.id);
