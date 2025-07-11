@@ -39,6 +39,8 @@ bot.command('repeat_now', (ctx) => enterRandomLessonScene(ctx));
 
 bot.command('hardest', hardestWordsCommand);
 
+bot.command('exit', (ctx) => ctx.scene.leave());
+
 bot.command('quit', async (ctx) => {
   await deleteChat(ctx.chat.id);
   await ctx.reply('Bye! I will not bother you anymore.');

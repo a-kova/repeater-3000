@@ -65,7 +65,9 @@ scene.on(message('text'), async (ctx) => {
     userInput
   );
   await rateCard(card, isCorrect ? Rating.Good : Rating.Again);
-  await ctx.reply(comment);
+  await ctx.replyWithHTML(
+    `${isCorrect ? '✅ Correct' : '❌ Wrong'} \n\n ${comment}`
+  );
 
   return enterRandomLessonScene(ctx);
 });

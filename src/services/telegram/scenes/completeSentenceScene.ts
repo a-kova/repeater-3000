@@ -39,7 +39,7 @@ scene.action('dontRemember', async (ctx) => {
   }
 
   await rateCard(card, Rating.Again);
-
+  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
   await ctx.replyWithHTML(`The correct word is: <b>${card.word}</b>`);
 
   return enterRandomLessonScene(ctx);
@@ -59,7 +59,7 @@ scene.on(message('text'), async (ctx) => {
   const isCorrect = normaliseWord(userInput) === normaliseWord(card.word);
 
   await rateCard(card, isCorrect ? Rating.Good : Rating.Again);
-
+  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
   await (isCorrect
     ? ctx.reply('Correct! Well done!')
     : ctx.replyWithHTML(`Wrong. The correct word is: <b>${card.word}</b>`));
