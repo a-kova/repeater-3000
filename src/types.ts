@@ -5,6 +5,7 @@ export const TelegramLessonScenes = [
   'makeSentenceScene',
   'rateWordScene',
   'typeWordForTranslationScene',
+  'translateWordScene',
 ] as const;
 
 export type TelegramLessonSceneName = (typeof TelegramLessonScenes)[number];

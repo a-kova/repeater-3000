@@ -57,6 +57,8 @@ async function enterRandomLessonScene(ctx: BotContext) {
   const card = await getCardForToday(ctx.chat!.id);
 
   if (!card) {
+    await ctx.scene.leave();
+
     return bot.telegram.sendMessage(
       ctx.chat!.id,
       "That's it! You have no more words to repeat today.",
@@ -65,10 +67,11 @@ async function enterRandomLessonScene(ctx: BotContext) {
   }
 
   const lessonWeights: Record<TelegramLessonSceneName, number> = {
-    rateWordScene: 0.7,
+    rateWordScene: 0.65,
     typeWordForTranslationScene: 0.1,
     completeSentenceScene: 0.1,
     makeSentenceScene: 0.1,
+    translateWordScene: 0.15,
   };
 
   const sceneName = randomWeighted(lessonWeights);

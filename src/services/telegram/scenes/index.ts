@@ -4,6 +4,7 @@ import rateWordScene from './rateWordScene.js';
 import removeWordScene from './removeWordScene.js';
 import setNotificationTimeScene from './setNotificationTimeScene.js';
 import typeWordForTranslationScene from './typeWordForTranslationScene.js';
+import translateWordScene from './translateWordScene.js';
 
 export const scenes = [
   completeSentenceScene,
@@ -12,4 +13,5 @@ export const scenes = [
   removeWordScene,
   setNotificationTimeScene,
   typeWordForTranslationScene,
+  translateWordScene,
 ];

@@ -6,7 +6,7 @@ export async function getRussianTranslationForWord(
   word: string
 ): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'o4-mini',
     messages: [
       {
         role: 'system',
@@ -57,7 +57,7 @@ export async function getRussianTranslationForSentence(
   sentence: string
 ): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'o4-mini',
     messages: [
       {
         role: 'system',
@@ -106,7 +106,7 @@ export async function getRussianTranslationForSentence(
 
 export async function getUsageExampleForWord(word: string) {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'o4-mini',
     messages: [
       {
         role: 'system',
@@ -129,7 +129,7 @@ export async function checkWordUsageInSentence(
   sentence: string
 ): Promise<{ isCorrect: boolean; comment: string }> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'o4-mini',
     messages: [
       {
         role: 'system',
@@ -180,4 +180,28 @@ export async function checkWordUsageInSentence(
     isCorrect: args.is_correct,
     comment: args.comment,
   };
+}
+
+export async function checkTranslation(
+  word: string,
+  translation: string
+): Promise<boolean> {
+  const response = await openai.chat.completions.create({
+    model: 'o4-mini',
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are an English language expert. Determine if a translation is correct.',
+      },
+      {
+        role: 'user',
+        content: `Is the translation "${translation}" correct for the word/phrase "${word}"? Respond with "yes" or "no".`,
+      },
+    ],
+    temperature: 0.0,
+  });
+
+  const answer = response.choices[0].message.content?.trim().toLowerCase();
+  return answer === 'yes';
 }
