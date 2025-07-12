@@ -53,6 +53,14 @@ bot.action('postpone_repeat', (ctx) =>
 
 bot.on(message('text'), onMessageHandler);
 
+bot.catch((err, ctx) => {
+  console.error(`Error for ${ctx.updateType}`, err);
+
+  try {
+    ctx.reply('An error occurred while processing your request.');
+  } catch {}
+});
+
 async function enterRandomLessonScene(ctx: BotContext) {
   const card = await getCardForToday(ctx.chat!.id);
 

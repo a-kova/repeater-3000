@@ -118,7 +118,6 @@ export async function getUsageExampleForWord(word: string) {
         content: `Give one clear, natural usage example of the word "${word}" in a sentence. Do not include any explanation.`,
       },
     ],
-    temperature: 0.3,
   });
 
   return response.choices[0].message.content?.trim();
@@ -141,7 +140,6 @@ export async function checkWordUsageInSentence(
         content: `Is the word "${word}" used correctly in the sentence "${sentence}"?`,
       },
     ],
-    temperature: 0.0,
     tools: [
       {
         type: 'function',
@@ -199,7 +197,6 @@ export async function checkTranslation(
         content: `Is the translation "${translation}" correct for the word/phrase "${word}"? Respond with "yes" or "no".`,
       },
     ],
-    temperature: 0.0,
   });
 
   const answer = response.choices[0].message.content?.trim().toLowerCase();

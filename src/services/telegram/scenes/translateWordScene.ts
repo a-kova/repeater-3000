@@ -21,7 +21,7 @@ scene.enter(async (ctx) => {
   await ctx.replyWithHTML(
     `Translate this word: <b>${word}</b>`,
     Markup.inlineKeyboard([
-      Markup.button.callback("Don't remember", 'dontRemember'),
+      Markup.button.callback("❌ Don't remember", 'dontRemember'),
     ])
   );
 });

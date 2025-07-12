@@ -39,6 +39,7 @@ export default [
     rules: {
       ...ts.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
 ];
