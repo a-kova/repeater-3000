@@ -190,7 +190,7 @@ export async function checkTranslation(
       {
         role: 'system',
         content:
-          'You are an English language expert. Determine if a translation is correct.',
+          "You are an English language expert. Determine if a translation is correct. Don't be too strict – accept translations that are close in meaning.",
       },
       {
         role: 'user',
@@ -200,5 +200,5 @@ export async function checkTranslation(
   });
 
   const answer = response.choices[0].message.content?.trim().toLowerCase();
-  return answer === 'yes';
+  return answer?.includes('yes') ?? false;
 }
