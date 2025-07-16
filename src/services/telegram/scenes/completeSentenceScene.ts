@@ -24,7 +24,9 @@ scene.enter(async (ctx) => {
       word,
       '______'
     )}</b>`,
-    Markup.removeKeyboard()
+    Markup.inlineKeyboard([
+      Markup.button.callback("❌ Don't remember", 'dontRemember'),
+    ])
   );
 });
 
