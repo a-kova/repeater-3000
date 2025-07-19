@@ -21,7 +21,7 @@ async function run() {
     );
   }
 
-  server.get('/health', async (_req, reply) => {
+  server.get('/', async (_req, reply) => {
     reply.send({ status: 'ok' });
   });
 
