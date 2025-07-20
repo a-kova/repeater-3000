@@ -52,14 +52,12 @@ scene.action('dontRemember', async (ctx) => {
 scene.on(message('text'), async (ctx) => {
   await ctx.sendChatAction('typing');
 
-  if (!ctx.scene.session.questionMessageId) {
-    await ctx.telegram.editMessageReplyMarkup(
-      ctx.chat.id,
-      ctx.scene.session.questionMessageId,
-      undefined,
-      { inline_keyboard: [] }
-    );
-  }
+  await ctx.telegram.editMessageReplyMarkup(
+    ctx.chat.id,
+    ctx.scene.session.questionMessageId,
+    undefined,
+    { inline_keyboard: [] }
+  );
 
   const userInput = ctx.message.text.trim();
   const { card } = ctx.scene.session;

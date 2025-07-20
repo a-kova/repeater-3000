@@ -52,6 +52,4 @@ scene.on(message('text'), async (ctx) => {
   await ctx.scene.leave();
 });
 
-scene.on('message', (ctx) => ctx.scene.leave());
-
 export default scene;

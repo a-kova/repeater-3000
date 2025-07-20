@@ -18,12 +18,14 @@ scene.enter(async (ctx) => {
   ctx.scene.session.card = card;
   const { word } = card;
 
-  await ctx.replyWithHTML(
+  const { message_id } = await ctx.replyWithHTML(
     `Make a sentence with the word <b>${word}</b>`,
     Markup.inlineKeyboard([
       Markup.button.callback("❌ Don't remember", 'dontRemember'),
     ])
   );
+
+  ctx.scene.session.questionMessageId = message_id;
 });
 
 scene.action('dontRemember', async (ctx) => {
@@ -51,6 +53,12 @@ scene.action('dontRemember', async (ctx) => {
 
 scene.on(message('text'), async (ctx) => {
   await ctx.sendChatAction('typing');
+  await ctx.telegram.editMessageReplyMarkup(
+    ctx.chat.id,
+    ctx.scene.session.questionMessageId,
+    undefined,
+    { inline_keyboard: [] }
+  );
 
   const userInput = ctx.message.text.trim();
   const { card } = ctx.scene.session;
