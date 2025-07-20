@@ -10,6 +10,7 @@ import { randomWeighted } from '../../helpers/index.js';
 
 interface SceneSession extends Scenes.SceneSessionData {
   card?: Card;
+  questionMessageId?: number;
 }
 
 interface BotContext extends Context {

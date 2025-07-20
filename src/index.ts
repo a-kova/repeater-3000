@@ -3,13 +3,12 @@ import { bot } from './services/telegram/index.js';
 import { startCronJobs } from './services/cron.js';
 
 const server = fastify({
-  logger: true,
+  logger: process.env.NODE_ENV !== 'production',
 });
 
 async function run() {
   if (process.env.NODE_ENV === 'production') {
     const webhook = await bot.createWebhook({ domain: process.env.HOST });
-    console.log('Webhook created');
 
     server.post(
       `/telegraf/${bot.secretPathComponent()}`,
@@ -27,7 +26,7 @@ async function run() {
   });
 
   server.listen(
-    { port: process.env.PORT || 8080, host: '0.0.0.0' },
+    { port: Number(process.env.PORT) || 8080, host: '0.0.0.0' },
     (err, address) => {
       if (err) {
         console.error(err);

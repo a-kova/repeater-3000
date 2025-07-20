@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
-import { cardsTable, chatsTable, db } from '../services/db/index.js';
+import { cardsTable, db } from '../services/db/index.js';
 import {
   getRussianTranslationForWord,
   getRussianTranslationForSentence,
@@ -10,7 +10,9 @@ import {
   getFSRSDataFromCardData,
   convertFSRSDataToCardData,
 } from '../helpers/index.js';
-import type { Card } from '../types.js';
+import type { Card, Chat } from '../types.js';
+
+type CardInsertData = typeof cardsTable.$inferInsert;
 
 const f = fsrs(
   generatorParameters({
@@ -19,7 +21,7 @@ const f = fsrs(
   })
 );
 
-async function populatePaidData(data: typeof cardsTable.$inferInsert) {
+async function populatePaidData(data: CardInsertData): Promise<CardInsertData> {
   const existingCard = await db.query.cardsTable.findFirst({
     where: (table, { and, eq, isNotNull }) =>
       and(
@@ -63,8 +65,8 @@ export async function cardExists(data: Pick<Card, 'word' | 'chat_id'>) {
 }
 
 export async function createCardForChat(
-  data: Partial<typeof cardsTable.$inferInsert>,
-  chat: typeof chatsTable.$inferSelect
+  data: Partial<CardInsertData>,
+  chat: Chat
 ) {
   const fsrsData = createEmptyCard(new Date());
 

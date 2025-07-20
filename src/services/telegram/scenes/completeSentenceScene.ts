@@ -19,7 +19,7 @@ scene.enter(async (ctx) => {
 
   const { word, example, example_translation } = card;
 
-  await ctx.replyWithHTML(
+  const { message_id } = await ctx.replyWithHTML(
     `Complete the sentence: \n\n${example_translation} \n\n <b>${example?.replace(
       word,
       '______'
@@ -28,10 +28,13 @@ scene.enter(async (ctx) => {
       Markup.button.callback("❌ Don't remember", 'dontRemember'),
     ])
   );
+
+  ctx.scene.session.questionMessageId = message_id;
 });
 
 scene.action('dontRemember', async (ctx) => {
   await ctx.answerCbQuery();
+  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
   const { card } = ctx.scene.session;
 
@@ -41,7 +44,6 @@ scene.action('dontRemember', async (ctx) => {
   }
 
   await rateCard(card, Rating.Again);
-  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
   await ctx.replyWithHTML(`The correct word is: <b>${card.word}</b>`);
 
   return enterRandomLessonScene(ctx);
@@ -49,6 +51,15 @@ scene.action('dontRemember', async (ctx) => {
 
 scene.on(message('text'), async (ctx) => {
   await ctx.sendChatAction('typing');
+
+  if (!ctx.scene.session.questionMessageId) {
+    await ctx.telegram.editMessageReplyMarkup(
+      ctx.chat.id,
+      ctx.scene.session.questionMessageId,
+      undefined,
+      { inline_keyboard: [] }
+    );
+  }
 
   const userInput = ctx.message.text.trim();
   const { card } = ctx.scene.session;
@@ -61,7 +72,6 @@ scene.on(message('text'), async (ctx) => {
   const isCorrect = normaliseWord(userInput) === normaliseWord(card.word);
 
   await rateCard(card, isCorrect ? Rating.Good : Rating.Again);
-  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
   await (isCorrect
     ? ctx.reply('Correct! Well done!')
     : ctx.replyWithHTML(`Wrong. The correct word is: <b>${card.word}</b>`));

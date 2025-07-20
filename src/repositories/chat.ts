@@ -1,13 +1,15 @@
 import { eq } from 'drizzle-orm';
 import { chatsTable, db } from '../services/db/index.js';
 
+type ChatInsertData = typeof chatsTable.$inferInsert;
+
 export async function getChatById(chatId: number) {
   return await db.query.chatsTable.findFirst({
     where: (table, { eq }) => eq(table.id, chatId),
   });
 }
 
-export async function createChat(data: typeof chatsTable.$inferInsert) {
+export async function createChat(data: ChatInsertData) {
   const res = await db
     .insert(chatsTable)
     .values(data)
@@ -19,7 +21,7 @@ export async function createChat(data: typeof chatsTable.$inferInsert) {
 
 export async function updateChat(
   chatId: number,
-  data: Partial<typeof chatsTable.$inferInsert>
+  data: Partial<ChatInsertData>
 ) {
   const res = await db
     .update(chatsTable)

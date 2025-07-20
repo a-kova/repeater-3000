@@ -1,4 +1,4 @@
-import { cardsTable } from './services/db/schema.js';
+import { cardsTable, chatsTable } from './services/db/schema.js';
 
 export const TelegramLessonScenes = [
   'completeSentenceScene',
@@ -10,4 +10,5 @@ export const TelegramLessonScenes = [
 
 export type TelegramLessonSceneName = (typeof TelegramLessonScenes)[number];
 
+export type Chat = typeof chatsTable.$inferSelect;
 export type Card = typeof cardsTable.$inferSelect;
