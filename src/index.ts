@@ -9,7 +9,6 @@ const server = fastify({
 async function run() {
   if (process.env.NODE_ENV === 'production') {
     const webhook = await bot.createWebhook({ domain: process.env.HOST });
-
     server.post(
       `/telegraf/${bot.secretPathComponent()}`,
       async (req, reply) => {

@@ -20,8 +20,33 @@ scene.enter(async (ctx) => {
 
   await ctx.replyWithHTML(
     `Type the word for this translation: <b>${translation}</b>`,
-    Markup.removeKeyboard()
+    Markup.inlineKeyboard([
+      Markup.button.callback("❌ Don't remember", 'dontRemember'),
+    ])
   );
+});
+
+scene.action('dontRemember', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+
+  const { card } = ctx.scene.session;
+
+  if (!card) {
+    await ctx.reply('No card to rate.');
+    return ctx.scene.leave();
+  }
+
+  await rateCard(card, Rating.Again);
+
+  const lines = [
+    `<b>Translation:</b> ${card.translation}`,
+    `<b>Example:</b> ${card.example}`,
+  ];
+
+  await ctx.replyWithHTML(lines.join('\n\n'));
+
+  return enterRandomLessonScene(ctx);
 });
 
 scene.on(message('text'), async (ctx) => {

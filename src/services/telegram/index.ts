@@ -7,10 +7,13 @@ import { getCardForToday } from '../../repositories/card.js';
 import { onMessageHandler, onStartHandler } from './handlers/index.js';
 import { TelegramLessonSceneName, Card } from '../../types.js';
 import { randomWeighted } from '../../helpers/index.js';
+import Lesson from '../../lessons/lesson.js';
 
 interface SceneSession extends Scenes.SceneSessionData {
   card?: Card;
-  questionMessageId?: number;
+  cards?: Card[];
+  lessons?: Lesson[];
+  activeLessonIndex?: number;
 }
 
 interface BotContext extends Context {

@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql, InferInsertModel } from 'drizzle-orm';
 import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
 import { cardsTable, db } from '../services/db/index.js';
 import {
@@ -12,7 +12,8 @@ import {
 } from '../helpers/index.js';
 import type { Card, Chat } from '../types.js';
 
-type CardInsertData = typeof cardsTable.$inferInsert;
+//type CardInsertData = InferInsertModel<typeof cardsTable>;
+type CardInsertData = any;
 
 const f = fsrs(
   generatorParameters({
@@ -115,6 +116,18 @@ export async function deleteCard(params: Pick<Card, 'word' | 'chat_id'>) {
         eq(cardsTable.word, params.word)
       )
     );
+}
+
+export async function getCardsForToday(chatId: number) {
+  const endOfToday = new Date();
+  endOfToday.setUTCHours(23, 59, 59, 999);
+
+  return await db.query.cardsTable.findMany({
+    where: (table, { and, eq, lte }) =>
+      and(eq(table.chat_id, chatId), lte(table.due, endOfToday)),
+    limit: 20,
+    orderBy: sql`RANDOM()`,
+  });
 }
 
 export async function getCardForToday(chatId: number) {

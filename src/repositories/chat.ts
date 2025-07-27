@@ -1,7 +1,8 @@
-import { eq } from 'drizzle-orm';
+import { eq, InferInsertModel } from 'drizzle-orm';
 import { chatsTable, db } from '../services/db/index.js';
 
-type ChatInsertData = typeof chatsTable.$inferInsert;
+//type ChatInsertData = InferInsertModel<typeof chatsTable>;
+type ChatInsertData = any;
 
 export async function getChatById(chatId: number) {
   return await db.query.chatsTable.findFirst({

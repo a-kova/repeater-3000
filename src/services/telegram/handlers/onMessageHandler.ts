@@ -1,6 +1,5 @@
 import { cardExists, createCardForChat } from '../../../repositories/card.js';
 import { getChatById } from '../../../repositories/chat.js';
-import { NotionClient } from '../../notion.js';
 import { BotContext } from '../index.js';
 
 export default async function onMessageHandler(ctx: BotContext) {
@@ -28,17 +27,6 @@ export default async function onMessageHandler(ctx: BotContext) {
     }
 
     const card = await createCardForChat({ word }, chat!);
-
-    if (chat?.notion_api_key && chat.notion_database_id) {
-      const notion = new NotionClient(
-        chat.notion_api_key,
-        chat.notion_database_id
-      );
-
-      notion.createPageForCard(card).catch((error) => {
-        console.error('Error creating page in Notion:', error);
-      });
-    }
 
     let message = `The word "${word}" has been added!`;
 

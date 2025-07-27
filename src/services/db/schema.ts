@@ -19,8 +19,6 @@ export const chatsTable = pgTable('chats', {
   notification_time: varchar('notification_time', { length: 255 }).$default(
     () => '12:00'
   ),
-  notion_api_key: varchar('notion_api_key', { length: 255 }),
-  notion_database_id: varchar('notion_database_id', { length: 255 }),
 });
 
 export const cardsTable = pgTable(

@@ -12,13 +12,11 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*",
-    "**.d.ts",
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    ".git",
-    "drizzle.config.js"
+    ".git"
   ]
 }

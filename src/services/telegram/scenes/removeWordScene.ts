@@ -6,8 +6,6 @@ import {
   deleteCard,
   getAllCardsForChat,
 } from '../../../repositories/card.js';
-import { getChatById } from '../../../repositories/chat.js';
-import { NotionClient } from '../../notion.js';
 
 const scene = new Scenes.BaseScene<BotContext>('removeWordScene');
 
@@ -33,7 +31,6 @@ scene.on(message('text'), async (ctx) => {
 
   const word = ctx.message.text.trim().toLowerCase();
   const chatId = ctx.chat!.id;
-  const chat = (await getChatById(chatId))!;
 
   try {
     const exists = await cardExists({ word, chat_id: chatId });
@@ -44,17 +41,6 @@ scene.on(message('text'), async (ctx) => {
     }
 
     await deleteCard({ word, chat_id: chatId });
-
-    if (chat.notion_api_key && chat.notion_database_id) {
-      const notion = new NotionClient(
-        chat.notion_api_key,
-        chat.notion_database_id
-      );
-
-      notion.deletePageForWord(word).catch((error) => {
-        console.error('Error deleting page in Notion:', error);
-      });
-    }
 
     await ctx.reply(
       `The word "${word}" has been removed successfully!`,
