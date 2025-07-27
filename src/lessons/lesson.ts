@@ -1,11 +1,13 @@
 import { Rating } from 'ts-fsrs';
-import { BotContext } from '../services/telegram/index.js';
+import { RepeatWordsSceneContext } from '../services/telegram/index.js';
 import { Card } from '../types.js';
 
 abstract class Lesson {
-  protected ctx: BotContext;
+  protected ctx: RepeatWordsSceneContext;
 
   public readonly card: Card;
+
+  protected questionMessageId?: number;
 
   protected onFinish: (rating: Rating) => Promise<void>;
 
@@ -16,7 +18,7 @@ abstract class Lesson {
     card,
     onFinish,
   }: {
-    ctx: BotContext;
+    ctx: RepeatWordsSceneContext;
     card: Card;
     onFinish: (rating: Rating) => Promise<void>;
   }) {

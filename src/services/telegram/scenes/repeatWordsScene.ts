@@ -1,12 +1,18 @@
-import { Scenes, Markup } from 'telegraf';
+import { message } from 'telegraf/filters';
+import { Scenes } from 'telegraf';
 import { Rating } from 'ts-fsrs';
-import { BotContext, enterRandomLessonScene } from '../index.js';
 import { rateCard, getCardsForToday } from '../../../repositories/card.js';
 import Lesson from '../../../lessons/lesson.js';
-import RateWordLesson from '../../../lessons/rateWordLesson.js';
-import { message } from 'telegraf/filters';
+import { createRandomLesson } from '../../../lessons/index.js';
 
-const scene = new Scenes.BaseScene<BotContext>('repeatWordsScene');
+interface SessionData extends Scenes.SceneSessionData {
+  lessons?: Lesson[];
+  activeLessonIndex?: number;
+}
+
+export type RepeatWordsSceneContext = Scenes.SceneContext<SessionData>;
+
+const scene = new Scenes.BaseScene<RepeatWordsSceneContext>('repeatWordsScene');
 
 const buildResultMessage = (lessons: Lesson[]) => {
   const messageLines = [
@@ -16,15 +22,20 @@ const buildResultMessage = (lessons: Lesson[]) => {
 
   lessons
     .filter((lesson) => lesson.rating !== null)
-    .sort((a, b) => b.rating! - a.rating!)
-    .forEach((lesson) => {
+    .sort((a, b) => {
+      if (a.rating! !== b.rating!) {
+        return a.rating! - b.rating!;
+      }
+
+      return a.card.word.localeCompare(b.card.word);
+    })
+    .map((lesson) => {
       const rating = lesson.rating!;
       const card = lesson.card;
-      const signEmoji = rating < Rating.Good ? '🟡' : '🟢';
+      const signEmoji =
+        rating < Rating.Hard ? '🔴' : rating < Rating.Good ? '🟡' : '🟢';
 
-      messageLines.push(
-        `${signEmoji} <b>${card.word}</b> - ${card.translation}`
-      );
+      return `${signEmoji} <b>${card.word}</b> - ${card.translation}`;
     });
 
   return messageLines.join('\n');
@@ -38,29 +49,32 @@ scene.enter(async (ctx) => {
     return ctx.scene.leave();
   }
 
-  const lessons: Lesson[] = cards.map(
-    (card) =>
-      new RateWordLesson({
-        ctx,
-        card,
-        onFinish: async (rating) => {
-          await rateCard(card, rating);
-          const isFinished = ctx.scene.session.lessons!.every(
-            (lesson) => lesson.is_finished
-          );
+  const lessons: Lesson[] = cards.map((card) =>
+    createRandomLesson({
+      ctx,
+      card,
+      onFinish: async (rating) => {
+        await rateCard(card, rating);
+        const isFinished = ctx.scene.session.lessons!.every(
+          (lesson) => lesson.is_finished
+        );
 
-          if (isFinished) {
-            const message = buildResultMessage(ctx.scene.session.lessons!);
-            await ctx.replyWithHTML(message);
-            return ctx.scene.leave();
-          }
+        if (isFinished) {
+          const message = buildResultMessage(ctx.scene.session.lessons!);
+          await ctx.replyWithHTML(message);
+          return ctx.scene.leave();
+        }
 
-          const nextLesson = ctx.scene.session.lessons!.find(
-            (lesson) => !lesson.is_finished
-          );
-          nextLesson?.start();
-        },
-      })
+        const nextLessonIndex = ctx.scene.session.lessons!.findIndex(
+          (lesson) => !lesson.is_finished
+        );
+
+        if (nextLessonIndex !== -1) {
+          ctx.scene.session.activeLessonIndex = nextLessonIndex;
+          ctx.scene.session.lessons![nextLessonIndex].start();
+        }
+      },
+    })
   );
 
   ctx.scene.session.lessons = lessons;
@@ -73,17 +87,14 @@ scene.on(message('text'), async (ctx) => {
   const currentLesson =
     ctx.scene.session.lessons![ctx.scene.session.activeLessonIndex!];
   const text = ctx.message.text.trim();
-  currentLesson.onMessage(text);
+  currentLesson.onText(text);
 });
 
-scene.action(/rate:(\d+)/, async (ctx) => {
-  const ratingValue = parseInt(ctx.match[1]);
-  const card = ctx.scene.session.card!;
-
-  await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-  await rateCard(card, ratingValue);
-
-  return enterRandomLessonScene(ctx);
+scene.action(/(\w+)/, async (ctx) => {
+  const currentLesson =
+    ctx.scene.session.lessons![ctx.scene.session.activeLessonIndex!];
+  const action = ctx.match[1];
+  await currentLesson.onAction(action);
 });
 
 export default scene;

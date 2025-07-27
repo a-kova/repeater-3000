@@ -12,8 +12,7 @@ import {
 } from '../helpers/index.js';
 import type { Card, Chat } from '../types.js';
 
-//type CardInsertData = InferInsertModel<typeof cardsTable>;
-type CardInsertData = any;
+type CardInsertData = InferInsertModel<typeof cardsTable>;
 
 const f = fsrs(
   generatorParameters({
@@ -127,16 +126,6 @@ export async function getCardsForToday(chatId: number) {
       and(eq(table.chat_id, chatId), lte(table.due, endOfToday)),
     limit: 20,
     orderBy: sql`RANDOM()`,
-  });
-}
-
-export async function getCardForToday(chatId: number) {
-  const endOfToday = new Date();
-  endOfToday.setUTCHours(23, 59, 59, 999);
-
-  return await db.query.cardsTable.findFirst({
-    where: (table, { and, eq, lte }) =>
-      and(eq(table.chat_id, chatId), lte(table.due, endOfToday)),
   });
 }
 

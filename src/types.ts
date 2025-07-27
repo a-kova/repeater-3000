@@ -1,4 +1,3 @@
-import { InferSelectModel } from 'drizzle-orm';
 import { chatsTable, cardsTable } from './services/db/index.js';
 
 export const TelegramLessonScenes = [

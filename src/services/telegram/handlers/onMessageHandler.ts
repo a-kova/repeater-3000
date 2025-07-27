@@ -1,8 +1,8 @@
+import { Scenes } from 'telegraf';
 import { cardExists, createCardForChat } from '../../../repositories/card.js';
 import { getChatById } from '../../../repositories/chat.js';
-import { BotContext } from '../index.js';
 
-export default async function onMessageHandler(ctx: BotContext) {
+export default async function onMessageHandler(ctx: Scenes.SceneContext) {
   await ctx.sendChatAction('typing');
 
   const chatId = ctx.chat!.id;

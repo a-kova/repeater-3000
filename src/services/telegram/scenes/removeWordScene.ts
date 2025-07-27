@@ -1,13 +1,12 @@
 import { Markup, Scenes } from 'telegraf';
 import { message } from 'telegraf/filters';
-import { BotContext } from '../index.js';
 import {
   cardExists,
   deleteCard,
   getAllCardsForChat,
 } from '../../../repositories/card.js';
 
-const scene = new Scenes.BaseScene<BotContext>('removeWordScene');
+const scene = new Scenes.BaseScene<Scenes.SceneContext>('removeWordScene');
 
 scene.enter(async (ctx) => {
   await ctx.sendChatAction('typing');
