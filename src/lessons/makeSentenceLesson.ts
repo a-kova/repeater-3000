@@ -1,4 +1,3 @@
-import { Markup } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { checkWordUsageInSentence } from '../services/openai.js';
@@ -7,9 +6,7 @@ class MakeSentenceLesson extends Lesson {
   async start(): Promise<void> {
     const { message_id } = await this.ctx.replyWithHTML(
       `Make a sentence with the word <b>${this.card.word}</b>`,
-      Markup.inlineKeyboard([
-        Markup.button.callback("❌ Don't remember", 'dontRemember'),
-      ])
+      this.keyboardWithDontRememberButton()
     );
 
     this.questionMessageId = message_id;
@@ -34,24 +31,6 @@ class MakeSentenceLesson extends Lesson {
     );
 
     await this.onFinish(isCorrect ? Rating.Good : Rating.Again);
-  }
-
-  async onAction(action: string) {
-    if (action !== 'dontRemember') {
-      return;
-    }
-
-    await this.ctx.answerCbQuery();
-    await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-
-    const lines = [
-      `<b>Translation:</b> ${this.card.translation}`,
-      `<b>Example:</b> ${this.card.example}`,
-    ];
-
-    await this.ctx.replyWithHTML(lines.join('\n\n'));
-
-    this.onFinish(Rating.Again);
   }
 }
 

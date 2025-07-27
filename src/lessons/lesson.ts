@@ -1,3 +1,4 @@
+import { Markup } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import { RepeatWordsSceneContext } from '../services/telegram/index.js';
 import { Card } from '../types.js';
@@ -39,7 +40,30 @@ abstract class Lesson {
 
   abstract onText(message: string): Promise<void>;
 
-  abstract onAction(action: string): Promise<void>;
+  protected keyboardWithDontRememberButton() {
+    return Markup.inlineKeyboard([
+      Markup.button.callback("❌ Don't remember", 'dontRemember'),
+    ]);
+  }
+
+  async onAction(action: string): Promise<void> {
+    if (action !== 'dontRemember') {
+      throw new Error(`Unknown action: ${action}`);
+    }
+
+    await this.ctx.answerCbQuery();
+    await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+
+    const lines = [
+      `<b>Word:</b> ${this.card.word}`,
+      `<b>Translation:</b> ${this.card.translation}`,
+      `<b>Example:</b> ${this.card.example}`,
+    ];
+
+    await this.ctx.replyWithHTML(lines.join('\n\n'));
+
+    await this.onFinish(Rating.Again);
+  }
 }
 
 export default Lesson;

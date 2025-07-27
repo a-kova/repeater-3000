@@ -1,4 +1,3 @@
-import { Markup } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { checkTranslation } from '../services/openai.js';
@@ -9,9 +8,7 @@ class TranslateWordLesson extends Lesson {
 
     await this.ctx.replyWithHTML(
       `Translate this word: <b>${word}</b>`,
-      Markup.inlineKeyboard([
-        Markup.button.callback("❌ Don't remember", 'dontRemember'),
-      ])
+      this.keyboardWithDontRememberButton()
     );
   }
 
@@ -31,24 +28,6 @@ class TranslateWordLesson extends Lesson {
       );
       this.onFinish(Rating.Again);
     }
-  }
-
-  async onAction(action: string) {
-    if (action !== 'dontRemember') {
-      return;
-    }
-
-    await this.ctx.answerCbQuery();
-    await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-
-    const lines = [
-      `<b>Translation:</b> ${this.card.translation}`,
-      `<b>Example:</b> ${this.card.example}`,
-    ];
-
-    await this.ctx.replyWithHTML(lines.join('\n\n'));
-
-    this.onFinish(Rating.Again);
   }
 }
 

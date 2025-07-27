@@ -1,4 +1,3 @@
-import { Markup } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { normaliseWord } from '../helpers/index.js';
@@ -12,9 +11,7 @@ class CompleteSentenceLesson extends Lesson {
         word,
         '______'
       )}</b>`,
-      Markup.inlineKeyboard([
-        Markup.button.callback("❌ Don't remember", 'dontRemember'),
-      ])
+      this.keyboardWithDontRememberButton()
     );
 
     this.questionMessageId = message_id;
@@ -39,25 +36,6 @@ class CompleteSentenceLesson extends Lesson {
         ));
 
     await this.onFinish(isCorrect ? Rating.Good : Rating.Again);
-  }
-
-  async onAction(action: string) {
-    if (action !== 'dontRemember') {
-      return;
-    }
-
-    await this.ctx.answerCbQuery();
-    await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-
-    const lines = [
-      `<b>Word:</b> ${this.card.word}`,
-      `<b>Example:</b> ${this.card.example}`,
-      `<b>Translation:</b> ${this.card.translation}`,
-    ];
-
-    await this.ctx.replyWithHTML(lines.join('\n\n'));
-
-    await this.onFinish(Rating.Again);
   }
 }
 
