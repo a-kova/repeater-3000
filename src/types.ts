@@ -1,4 +1,4 @@
-import { cardsTable, chatsTable } from './services/db/schema.js';
+import { chatsTable, cardsTable } from './services/db/index.js';
 
 export const TelegramLessonScenes = [
   'completeSentenceScene',

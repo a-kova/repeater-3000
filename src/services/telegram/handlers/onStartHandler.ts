@@ -1,7 +1,7 @@
-import { BotContext } from '../index.js';
+import { Scenes } from 'telegraf';
 import { createChat } from '../../../repositories/chat.js';
 
-export default async function onStartHandler(ctx: BotContext) {
+export default async function onStartHandler(ctx: Scenes.SceneContext) {
   await ctx.sendChatAction('typing');
 
   await createChat({

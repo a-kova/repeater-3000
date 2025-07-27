@@ -1,7 +1,7 @@
-import { BotContext } from '../index.js';
+import { Scenes } from 'telegraf';
 import { getAllCardsForChat } from '../../../repositories/card.js';
 
-export default async function listWordsCommand(ctx: BotContext) {
+export default async function listWordsCommand(ctx: Scenes.SceneContext) {
   await ctx.sendChatAction('typing');
 
   const chatId = ctx.chat!.id;
