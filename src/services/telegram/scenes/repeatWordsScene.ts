@@ -1,5 +1,5 @@
-import { message } from 'telegraf/filters';
 import { Scenes } from 'telegraf';
+import { message } from 'telegraf/filters';
 import { Rating } from 'ts-fsrs';
 import { rateCard, getCardsForToday } from '../../../repositories/card.js';
 import Lesson from '../../../lessons/lesson.js';
@@ -36,7 +36,8 @@ const buildResultMessage = (lessons: Lesson[]) => {
         rating < Rating.Hard ? '🔴' : rating < Rating.Good ? '🟡' : '🟢';
 
       return `${signEmoji} <b>${card.word}</b> - ${card.translation}`;
-    });
+    })
+    .forEach((line) => messageLines.push(line));
 
   return messageLines.join('\n');
 };
@@ -90,7 +91,7 @@ scene.on(message('text'), async (ctx) => {
   currentLesson.onText(text);
 });
 
-scene.action(/(\w+)/, async (ctx) => {
+scene.action(/(.+)/, async (ctx) => {
   const currentLesson =
     ctx.scene.session.lessons![ctx.scene.session.activeLessonIndex!];
   const action = ctx.match[1];
