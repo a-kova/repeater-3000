@@ -6,14 +6,17 @@ class TranslateWordLesson extends Lesson {
   async start(): Promise<void> {
     const { word } = this.card;
 
-    await this.ctx.replyWithHTML(
+    const { message_id } = await this.ctx.replyWithHTML(
       `Translate this word: <b>${word}</b>`,
       this.keyboardWithDontRememberButton()
     );
+
+    this.questionMessageId = message_id;
   }
 
   async onText(message: string) {
     await this.ctx.sendChatAction('typing');
+    await this.clearKeyboard();
 
     const isCorrect =
       message === this.card.translation ||

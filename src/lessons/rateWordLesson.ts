@@ -22,7 +22,7 @@ class RateWordLesson extends Lesson {
       );
     }
 
-    await this.ctx.replyWithHTML(
+    const { message_id } = await this.ctx.replyWithHTML(
       lines.join('\n'),
       Markup.inlineKeyboard(
         Object.entries(RATING_MAP).map(([label, value]) =>
@@ -31,6 +31,8 @@ class RateWordLesson extends Lesson {
         { columns: 2 }
       )
     );
+
+    this.questionMessageId = message_id;
   }
 
   async onText() {
@@ -43,7 +45,7 @@ class RateWordLesson extends Lesson {
     }
 
     const ratingValue = parseInt(action.split(':')[1]);
-    await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+    await this.clearKeyboard();
     await this.onFinish(ratingValue);
   }
 }

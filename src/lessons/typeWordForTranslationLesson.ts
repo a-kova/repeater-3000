@@ -4,13 +4,18 @@ import { normaliseWord } from '../helpers/index.js';
 
 class TypeWordForTranslationLesson extends Lesson {
   async start() {
-    await this.ctx.replyWithHTML(
+    const { message_id } = await this.ctx.replyWithHTML(
       `Type the word for this translation: <b>${this.card.translation}</b>`,
       this.keyboardWithDontRememberButton()
     );
+
+    this.questionMessageId = message_id;
   }
 
   async onText(message: string) {
+    await this.ctx.sendChatAction('typing');
+    await this.clearKeyboard();
+
     const isRight = normaliseWord(message) === normaliseWord(this.card.word);
 
     await (isRight

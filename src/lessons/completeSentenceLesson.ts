@@ -19,13 +19,7 @@ class CompleteSentenceLesson extends Lesson {
 
   async onText(message: string) {
     await this.ctx.sendChatAction('typing');
-
-    await this.ctx.telegram.editMessageReplyMarkup(
-      this.ctx.chat!.id,
-      this.questionMessageId,
-      undefined,
-      { inline_keyboard: [] }
-    );
+    await this.clearKeyboard();
 
     const isCorrect = normaliseWord(message) === normaliseWord(this.card.word);
 

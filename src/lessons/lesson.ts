@@ -46,6 +46,17 @@ abstract class Lesson {
     ]);
   }
 
+  protected async clearKeyboard() {
+    if (this.questionMessageId) {
+      await this.ctx.telegram.editMessageReplyMarkup(
+        this.ctx.chat!.id,
+        this.questionMessageId,
+        undefined,
+        { inline_keyboard: [] }
+      );
+    }
+  }
+
   async onAction(action: string): Promise<void> {
     if (action !== 'dontRemember') {
       throw new Error(`Unknown action: ${action}`);
