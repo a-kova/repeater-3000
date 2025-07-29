@@ -57,7 +57,7 @@ scene.enter(async (ctx) => {
       onFinish: async (rating) => {
         await rateCard(card, rating);
         const isFinished = ctx.scene.session.lessons!.every(
-          (lesson) => lesson.is_finished
+          (lesson) => lesson.isFinished
         );
 
         if (isFinished) {
@@ -67,7 +67,7 @@ scene.enter(async (ctx) => {
         }
 
         const nextLessonIndex = ctx.scene.session.lessons!.findIndex(
-          (lesson) => !lesson.is_finished
+          (lesson) => !lesson.isFinished
         );
 
         if (nextLessonIndex !== -1) {

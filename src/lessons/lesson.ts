@@ -32,7 +32,7 @@ abstract class Lesson {
     };
   }
 
-  get is_finished() {
+  get isFinished() {
     return this.rating !== null;
   }
 
@@ -47,13 +47,17 @@ abstract class Lesson {
   }
 
   protected async clearKeyboard() {
-    if (this.questionMessageId) {
-      await this.ctx.telegram.editMessageReplyMarkup(
-        this.ctx.chat!.id,
-        this.questionMessageId,
-        undefined,
-        { inline_keyboard: [] }
-      );
+    try {
+      if (this.questionMessageId) {
+        await this.ctx.telegram.editMessageReplyMarkup(
+          this.ctx.chat!.id,
+          this.questionMessageId,
+          undefined,
+          { inline_keyboard: [] }
+        );
+      }
+    } catch (error) {
+      console.error('Failed to clear keyboard:', error);
     }
   }
 
