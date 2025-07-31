@@ -191,7 +191,7 @@ export async function checkTranslation(
       {
         role: 'system',
         content:
-          "You are an English language expert. Determine if a translation is correct. Don't be too strict – accept translations that are close in meaning.",
+          "You are an English language expert. Determine if a translation is correct. Only check meaning, ignore tense. Don't be too strict – accept translations that are close in meaning.",
       },
       {
         role: 'user',
