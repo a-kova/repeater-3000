@@ -66,7 +66,6 @@ abstract class Lesson {
       throw new Error(`Unknown action: ${action}`);
     }
 
-    await this.ctx.answerCbQuery();
     await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
     const lines = [
