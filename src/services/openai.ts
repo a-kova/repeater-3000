@@ -1,12 +1,13 @@
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const model = 'gpt-4.1-nano-2025-04-14';
 
 export async function getRussianTranslationForWord(
   word: string
 ): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: 'o4-mini',
+    model,
     messages: [
       {
         role: 'system',
@@ -57,7 +58,7 @@ export async function getRussianTranslationForSentence(
   sentence: string
 ): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: 'o4-mini',
+    model,
     messages: [
       {
         role: 'system',
@@ -106,7 +107,7 @@ export async function getRussianTranslationForSentence(
 
 export async function getUsageExampleForWord(word: string) {
   const response = await openai.chat.completions.create({
-    model: 'o4-mini',
+    model,
     messages: [
       {
         role: 'system',
@@ -128,7 +129,7 @@ export async function checkWordUsageInSentence(
   sentence: string
 ): Promise<{ isCorrect: boolean; comment: string }> {
   const response = await openai.chat.completions.create({
-    model: 'o4-mini',
+    model,
     messages: [
       {
         role: 'system',
@@ -185,7 +186,7 @@ export async function checkTranslation(
   translation: string
 ): Promise<boolean> {
   const response = await openai.chat.completions.create({
-    model: 'o4-mini',
+    model,
     messages: [
       {
         role: 'system',
