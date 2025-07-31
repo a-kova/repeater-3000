@@ -24,11 +24,11 @@ type LessonClass =
   | typeof TypeWordForTranslationLesson;
 
 const lessonWeights: Record<LessonName, number> = {
-  completeSentence: 0.1,
-  makeSentence: 0.1,
-  rateWord: 0.65,
+  completeSentence: 0.05,
+  makeSentence: 0.05,
+  rateWord: 0.7,
   translateWord: 0.15,
-  typeWordForTranslation: 0.1,
+  typeWordForTranslation: 0.15,
 };
 
 function getClassByLessonName(name: LessonName): LessonClass {

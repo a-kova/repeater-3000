@@ -66,7 +66,7 @@ abstract class Lesson {
       throw new Error(`Unknown action: ${action}`);
     }
 
-    await this.ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+    await this.clearKeyboard();
 
     const lines = [
       `<b>Word:</b> ${this.card.word}`,
