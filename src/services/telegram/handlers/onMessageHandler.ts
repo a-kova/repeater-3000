@@ -18,6 +18,10 @@ export default async function onMessageHandler(ctx: Scenes.SceneContext) {
     return ctx.reply('The word must be at least 3 characters long.');
   }
 
+  if (/^[\p{L}\s-]+$/u.test(word) === false) {
+    return ctx.reply('The word can only contain letters, spaces, and hyphens.');
+  }
+
   try {
     const chat = await getChatById(chatId);
     const exists = await cardExists({ word, chat_id: chatId });
