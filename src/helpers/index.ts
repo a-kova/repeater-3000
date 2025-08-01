@@ -9,10 +9,6 @@ export function omitProps<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
   return result;
 }
 
-export function toSnakeCase(str: string) {
-  return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
-}
-
 export function convertFSRSDataToCardData(
   data: FSRSCard
 ): Pick<Card, keyof FSRSCard> {
@@ -38,13 +34,6 @@ export function getFSRSDataFromCardData(card: Card): FSRSCard {
     difficulty: parseFloat(card.difficulty),
     last_review: card.last_review || undefined,
   };
-}
-
-export function shuffle<T>(arr: T[]): T[] {
-  return arr
-    .map((v) => [v, Math.random()] as const)
-    .sort((a, b) => a[1] - b[1])
-    .map(([v]) => v);
 }
 
 export function randomWeighted<T extends string | number | symbol>(
