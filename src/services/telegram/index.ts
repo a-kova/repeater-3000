@@ -31,7 +31,12 @@ bot.command('quit', async (ctx) => {
   await ctx.leaveChat();
 });
 
-bot.action('start_repeat', (ctx) => ctx.scene.enter('repeatWordsScene'));
+bot.action('start_repeat', async (ctx) => {
+  if (ctx.scene.current?.id === 'repeatWordsScene') {
+    await ctx.scene.leave();
+  }
+  return ctx.scene.enter('repeatWordsScene');
+});
 
 bot.action('postpone_repeat', (ctx) =>
   ctx.reply('Okay, I will remind you tomorrow.')
@@ -39,12 +44,9 @@ bot.action('postpone_repeat', (ctx) =>
 
 bot.on(message('text'), onMessageHandler);
 
-bot.catch((err, ctx) => {
+bot.catch(async (err, ctx) => {
   console.error(`Error for ${ctx.updateType}`, err);
-
-  try {
-    ctx.reply('An error occurred while processing your request.');
-  } catch {}
+  await ctx.reply('An error occurred while processing your request.');
 });
 
 async function notifyUser(chatId: number, wordsCount: number) {
