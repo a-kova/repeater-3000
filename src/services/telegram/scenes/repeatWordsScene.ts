@@ -45,12 +45,14 @@ const buildResultMessage = (lessons: Lesson[]) => {
 scene.enter(async (ctx) => {
   const cards = await getCardsForToday(ctx.chat!.id);
 
-  console.log(ctx.scene.session);
-
   if (cards.length === 0) {
+    console.log('No words to repeat today', ctx.scene.session);
+
     await ctx.reply('No words to repeat today.');
     return ctx.scene.leave();
   }
+
+  console.log('Starting a repeatWordsScene', ctx.scene.session);
 
   const lessons: Lesson[] = cards.map((card) =>
     createRandomLesson({
