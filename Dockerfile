@@ -21,4 +21,4 @@ COPY --from=builder /app/.env ./
 
 EXPOSE 3002
 
-CMD ["npm", "run", "start"]
+CMD ["node", "--env-file-if-exists=.env", "dist/index.js"]
