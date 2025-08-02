@@ -52,8 +52,6 @@ scene.enter(async (ctx) => {
     return ctx.scene.leave();
   }
 
-  console.log('Starting a repeatWordsScene', ctx.scene.session);
-
   const lessons: Lesson[] = cards.map((card) =>
     createRandomLesson({
       ctx,
@@ -84,6 +82,8 @@ scene.enter(async (ctx) => {
 
   ctx.scene.session.lessons = lessons;
   ctx.scene.session.activeLessonIndex = 0;
+
+  console.log('Starting a repeatWordsScene', ctx.scene.session);
 
   lessons[0].start();
 });
