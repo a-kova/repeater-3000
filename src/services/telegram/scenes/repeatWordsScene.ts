@@ -45,6 +45,8 @@ const buildResultMessage = (lessons: Lesson[]) => {
 scene.enter(async (ctx) => {
   const cards = await getCardsForToday(ctx.chat!.id);
 
+  console.log(ctx.scene.session);
+
   if (cards.length === 0) {
     await ctx.reply('No words to repeat today.');
     return ctx.scene.leave();
