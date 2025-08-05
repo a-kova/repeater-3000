@@ -4,7 +4,7 @@ import { scenes } from './scenes/index.js';
 import { listWordsCommand, hardestWordsCommand } from './commands/index.js';
 import { deleteChat } from '../../repositories/chat.js';
 import { onMessageHandler, onStartHandler } from './handlers/index.js';
-import { RepeatWordsSceneContext } from './scenes/repeatWordsScene.js';
+import type { RepeatWordsSceneContext } from './scenes/repeatWordsScene.js';
 
 const bot = new Telegraf<Scenes.SceneContext>(process.env.TELEGRAM_BOT_TOKEN);
 

@@ -191,13 +191,13 @@ export async function checkTranslation(
       {
         role: 'system',
         content:
-          "You are an English language expert. Determine if a translation is correct. Only check meaning, ignore tense. Don't be too strict – accept translations that are close in meaning.",
+          'You are an English language expert. Determine if a translation conveys the correct general meaning. Be lenient — accept translations that are close in meaning, even if not exact. Ignore tense, grammatical form, or word-for-word match. Focus on whether the meaning is preserved in typical use.',
       },
       {
         role: 'user',
-        content: `Is the translation "${translation}" correct for the word/phrase "${word}"? Respond with "yes" or "no".`,
+        content: `Does "${translation}" convey the general meaning of "${word}"? Respond with "yes" or "no", accepting near-synonyms and contextually accurate translations.`,
       },
-    ],
+    ]
   });
 
   const answer = response.choices[0].message.content?.trim().toLowerCase();
