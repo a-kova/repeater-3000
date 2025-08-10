@@ -46,7 +46,12 @@ export async function getRussianTranslationForWord(
   });
 
   const toolCall = response.choices[0].message.tool_calls?.[0];
-  if (!toolCall || toolCall.function.name !== 'return_translations') {
+
+  if (
+    !toolCall ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'return_translations'
+  ) {
     throw new Error('Unexpected tool call format');
   }
 
@@ -98,7 +103,11 @@ export async function getRussianTranslationForSentence(
 
   const toolCall = response.choices[0].message.tool_calls?.[0];
 
-  if (!toolCall || toolCall.function.name !== 'return_translation') {
+  if (
+    !toolCall ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'return_translation'
+  ) {
     throw new Error('Unexpected tool call format');
   }
 
@@ -169,7 +178,11 @@ export async function checkWordUsageInSentence(
 
   const toolCall = response.choices[0].message.tool_calls?.[0];
 
-  if (!toolCall || toolCall.function.name !== 'check_usage') {
+  if (
+    !toolCall ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'check_usage'
+  ) {
     throw new Error('Unexpected tool call format');
   }
 
