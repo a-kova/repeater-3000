@@ -1,7 +1,7 @@
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const model = 'gpt-4.1-nano-2025-04-14';
+const model = 'gpt-5-nano';
 
 export async function getRussianTranslationForWord(
   word: string
