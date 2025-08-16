@@ -26,8 +26,8 @@ type LessonClass =
 const lessonWeights: Record<LessonName, number> = {
   completeSentence: 0.05,
   makeSentence: 0.05,
-  rateWord: 0.7,
-  translateWord: 0.15,
+  rateWord: 0.65,
+  translateWord: 0.2,
   typeWordForTranslation: 0.15,
 };
 

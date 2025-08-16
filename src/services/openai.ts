@@ -134,6 +134,33 @@ export async function getUsageExampleForWord(word: string) {
   return response.choices[0].message.content?.trim();
 }
 
+export async function createSentenceWithEmptySpace(
+  word: string
+): Promise<string> {
+  const response = await openai.chat.completions.create({
+    model: miniModel,
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are an assistant that creates educational fill-in-the-blank sentences. Create clear, natural sentences that provide enough context to guess the missing word.',
+      },
+      {
+        role: 'user',
+        content: `Create a sentence where the word "${word}" is replaced with "___" (three underscores). The sentence should be clear, grammatically correct, and provide sufficient context for someone to deduce the missing word. Use the word in its most common meaning and typical context.`,
+      },
+    ],
+  });
+
+  const result = response.choices[0].message.content?.trim();
+
+  if (!result) {
+    throw new Error('Something went wrong');
+  }
+
+  return result;
+}
+
 export async function checkWordUsageInSentence(
   word: string,
   sentence: string
