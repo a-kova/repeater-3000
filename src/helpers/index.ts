@@ -1,11 +1,14 @@
 import { Card as FSRSCard } from 'ts-fsrs';
+import { fromZonedTime } from 'date-fns-tz';
 import type { Card } from '../types.js';
 
 export function omitProps<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
   const result = { ...obj };
+
   for (const key of keys) {
     delete result[key];
   }
+
   return result;
 }
 
@@ -58,4 +61,24 @@ export function randomWeighted<T extends string | number | symbol>(
 
 export function normaliseWord(word: string): string {
   return word.toLowerCase().replace(/^(to|a|an)\s+/, '');
+}
+
+export function toUTC(timeHHmm: string, timezone: string) {
+  const [hours, minutes] = timeHHmm.split(':').map(Number);
+
+  const now = new Date();
+  const localDate = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    hours,
+    minutes
+  );
+
+  const utcDate = fromZonedTime(localDate, timezone);
+
+  const hh = String(utcDate.getUTCHours()).padStart(2, '0');
+  const mm = String(utcDate.getUTCMinutes()).padStart(2, '0');
+
+  return `${hh}:${mm}`;
 }

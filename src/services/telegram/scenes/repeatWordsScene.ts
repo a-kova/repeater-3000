@@ -4,6 +4,7 @@ import { Rating } from 'ts-fsrs';
 import { rateCard, getCardsForToday } from '../../../repositories/card.js';
 import Lesson from '../../../lessons/lesson.js';
 import { createRandomLesson } from '../../../lessons/index.js';
+import i18n from '../../i18n.js';
 
 interface SessionData extends Scenes.SceneSessionData {
   lessons?: Lesson[];
@@ -16,8 +17,8 @@ const scene = new Scenes.BaseScene<RepeatWordsSceneContext>('repeatWordsScene');
 
 const buildResultMessage = (lessons: Lesson[]) => {
   const messageLines = [
-    "That's it! You have no more words to repeat today.",
-    "Your today's words:\n",
+    i18n.__("That's it! You have no more words to repeat today."),
+    i18n.__("Your today's words:"),
   ];
 
   lessons
@@ -46,9 +47,7 @@ scene.enter(async (ctx) => {
   const cards = await getCardsForToday(ctx.chat!.id);
 
   if (cards.length === 0) {
-    console.log('No words to repeat today', ctx.scene.session);
-
-    await ctx.reply('No words to repeat today.');
+    await ctx.reply(i18n.__('No words to repeat today.'));
     return ctx.scene.leave();
   }
 
@@ -82,8 +81,6 @@ scene.enter(async (ctx) => {
 
   ctx.scene.session.lessons = lessons;
   ctx.scene.session.activeLessonIndex = 0;
-
-  console.log('Starting a repeatWordsScene', ctx.scene.session);
 
   lessons[0].start();
 });

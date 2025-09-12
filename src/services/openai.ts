@@ -4,8 +4,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const nanoModel = 'gpt-5-nano';
 const miniModel = 'gpt-5-mini';
 
-export async function getRussianTranslationForWord(
-  word: string
+export async function getTranslationForWord(
+  word: string,
+  targetLanguage: string = 'ru'
 ): Promise<string> {
   const response = await openai.chat.completions.create({
     model: nanoModel,
@@ -13,11 +14,11 @@ export async function getRussianTranslationForWord(
       {
         role: 'system',
         content:
-          'You are a strict bilingual dictionary. Only return direct, most common Russian translations for English words, not synonyms or stylistic variants.',
+          'You are a strict bilingual dictionary. Only return direct, most common translations for English words, not synonyms or stylistic variants.',
       },
       {
         role: 'user',
-        content: `Translate the English word "${word}" to Russian. Only return the most common Russian equivalents (no synonyms or variations). Limit to 2–3 words maximum. Respond in JSON format using the return_translations tool.`,
+        content: `Translate the English word "${word}" to ${targetLanguage}. Only return the most common equivalents (no synonyms or variations). Limit to 2–3 words maximum. Respond in JSON format using the return_translations tool.`,
       },
     ],
     tools: [
@@ -26,7 +27,7 @@ export async function getRussianTranslationForWord(
         function: {
           name: 'return_translations',
           description:
-            'Returns possible Russian translations for a given English word.',
+            'Returns possible translations for a given English word.',
           parameters: {
             type: 'object',
             properties: {
@@ -60,8 +61,9 @@ export async function getRussianTranslationForWord(
   return (args.translations as string[]).join(', ');
 }
 
-export async function getRussianTranslationForSentence(
-  sentence: string
+export async function getTranslationForSentence(
+  sentence: string,
+  targetLanguage = 'ru'
 ): Promise<string> {
   const response = await openai.chat.completions.create({
     model: miniModel,
@@ -69,11 +71,11 @@ export async function getRussianTranslationForSentence(
       {
         role: 'system',
         content:
-          'You are a strict bilingual dictionary. Only return direct, most common Russian translation for English sentence, no synonyms or stylistic variants.',
+          'You are a strict bilingual dictionary. Only return direct, most common translations for English sentences, no synonyms or stylistic variants.',
       },
       {
         role: 'user',
-        content: `Translate the English sentence "${sentence}" to Russian. Respond in JSON format using the return_translations tool.`,
+        content: `Translate the English sentence "${sentence}" to ${targetLanguage} language. Respond in JSON format using the return_translations tool.`,
       },
     ],
     tools: [
@@ -81,14 +83,13 @@ export async function getRussianTranslationForSentence(
         type: 'function',
         function: {
           name: 'return_translation',
-          description:
-            'Returns the Russian translation for a given English sentence.',
+          description: 'Returns the translation for a given English sentence.',
           parameters: {
             type: 'object',
             properties: {
               translation: {
                 type: 'string',
-                description: 'The Russian translation of the English sentence.',
+                description: 'The translation of the English sentence.',
               },
             },
             required: ['translation'],
@@ -163,7 +164,8 @@ export async function createSentenceWithEmptySpace(
 
 export async function checkWordUsageInSentence(
   word: string,
-  sentence: string
+  sentence: string,
+  commentLanguage: string = 'en'
 ): Promise<{ isCorrect: boolean; comment: string }> {
   const response = await openai.chat.completions.create({
     model: miniModel,
@@ -194,7 +196,7 @@ export async function checkWordUsageInSentence(
               },
               comment: {
                 type: 'string',
-                description: 'A short comment with feedback.',
+                description: `A short comment with feedback in ${commentLanguage} language`,
               },
             },
             required: ['is_correct', 'comment'],

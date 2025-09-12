@@ -14,11 +14,15 @@ export const chatsTable = pgTable('chats', {
   first_name: varchar('first_name', { length: 255 }),
   last_name: varchar('last_name', { length: 255 }),
   username: varchar('username', { length: 255 }),
+  original_language: varchar('original_language', { length: 2 })
+    .notNull()
+    .default('ru'),
+  timezone: varchar('timezone', { length: 255 }).notNull().default('UTC'),
   is_active: boolean('is_active').notNull().default(true),
   is_paid: boolean('is_paid').notNull().default(true),
-  notification_time: varchar('notification_time', { length: 255 }).$default(
-    () => '12:00'
-  ),
+  notification_time_utc: varchar('notification_time_utc', {
+    length: 255,
+  }).$default(() => '12:00'),
 });
 
 export const cardsTable = pgTable(

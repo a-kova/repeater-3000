@@ -2,8 +2,8 @@ import { and, desc, eq, sql, InferInsertModel } from 'drizzle-orm';
 import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
 import { cardsTable, db } from '../services/db/index.js';
 import {
-  getRussianTranslationForWord,
-  getRussianTranslationForSentence,
+  getTranslationForWord,
+  getTranslationForSentence,
   getUsageExampleForWord,
 } from '../services/openai.js';
 import {
@@ -21,7 +21,10 @@ const f = fsrs(
   })
 );
 
-async function populatePaidData(data: CardInsertData): Promise<CardInsertData> {
+async function populatePaidData(
+  data: CardInsertData,
+  originalLanguage: string
+): Promise<CardInsertData> {
   const existingCard = await db.query.cardsTable.findFirst({
     where: (table, { and, eq, isNotNull }) =>
       and(
@@ -37,11 +40,14 @@ async function populatePaidData(data: CardInsertData): Promise<CardInsertData> {
   }
 
   const [translation, example] = await Promise.all([
-    getRussianTranslationForWord(data.word),
+    getTranslationForWord(data.word, originalLanguage),
     getUsageExampleForWord(data.word),
   ]);
 
-  const example_translation = await getRussianTranslationForSentence(example!);
+  const example_translation = await getTranslationForSentence(
+    example!,
+    originalLanguage
+  );
 
   return { ...data, translation, example, example_translation };
 }
@@ -81,7 +87,7 @@ export async function createCardForChat(
   };
 
   if (chat.is_paid) {
-    insertData = await populatePaidData(insertData);
+    insertData = await populatePaidData(insertData, chat.original_language);
   }
 
   const res = await db.insert(cardsTable).values(insertData).returning();

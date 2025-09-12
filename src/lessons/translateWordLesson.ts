@@ -1,13 +1,14 @@
 import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { checkTranslation } from '../services/openai.js';
+import i18n from '../services/i18n.js';
 
 class TranslateWordLesson extends Lesson {
   async start(): Promise<void> {
     const { word } = this.card;
 
     const { message_id } = await this.ctx.replyWithHTML(
-      `Translate this word: <b>${word}</b>`,
+      `${i18n.__('Translate this word:')} <b>${word}</b>`,
       this.keyboardWithDontRememberButton()
     );
 
@@ -23,11 +24,13 @@ class TranslateWordLesson extends Lesson {
       (await checkTranslation(this.card.word, message));
 
     if (isCorrect) {
-      await this.ctx.reply('✅ Correct');
+      await this.ctx.reply(`✅ ${i18n.__('Correct')}`);
       await this.onFinish(Rating.Good);
     } else {
       await this.ctx.replyWithHTML(
-        `❌ Wrong. The correct translation is: <b>${this.card.translation}</b>`
+        `❌ ${i18n.__('Wrong')}. ${i18n.__('The correct translation is:')} <b>${
+          this.card.translation
+        }</b>`
       );
       this.onFinish(Rating.Again);
     }

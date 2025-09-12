@@ -14,7 +14,7 @@ export function startCronJobs() {
     const chats = await db
       .select({ id: chatsTable.id })
       .from(chatsTable)
-      .where(eq(chatsTable.notification_time, notificationTime));
+      .where(eq(chatsTable.notification_time_utc, notificationTime));
 
     const chatIds = chats.map((chat) => chat.id);
 

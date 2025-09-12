@@ -1,6 +1,7 @@
 import { Markup } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import { RepeatWordsSceneContext } from '../services/telegram/index.js';
+import i18n from '../services/i18n.js';
 import { Card } from '../types.js';
 
 abstract class Lesson {
@@ -42,7 +43,7 @@ abstract class Lesson {
 
   protected keyboardWithDontRememberButton() {
     return Markup.inlineKeyboard([
-      Markup.button.callback("❌ Don't remember", 'dontRemember'),
+      Markup.button.callback(`❌ ${i18n.__("Don't remember")}`, 'dontRemember'),
     ]);
   }
 

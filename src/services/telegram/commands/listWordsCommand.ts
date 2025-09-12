@@ -1,5 +1,6 @@
 import { Scenes } from 'telegraf';
 import { getAllCardsForChat } from '../../../repositories/card.js';
+import i18n from '../../i18n.js';
 
 export default async function listWordsCommand(ctx: Scenes.SceneContext) {
   await ctx.sendChatAction('typing');
@@ -8,7 +9,7 @@ export default async function listWordsCommand(ctx: Scenes.SceneContext) {
   const cards = await getAllCardsForChat(chatId);
 
   if (cards.length === 0) {
-    return await ctx.reply('No words found.');
+    return await ctx.reply(i18n.__('No words found'));
   }
 
   let list = cards.map((card, index) => `${index + 1}. ${card.word}`);
