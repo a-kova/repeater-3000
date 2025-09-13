@@ -3,7 +3,7 @@ import { message } from 'telegraf/filters';
 import { getChatById, updateChat } from '../../../repositories/chat.js';
 import { toUTC } from '../../../helpers/index.js';
 import i18n from '../../i18n.js';
-import { timeKeyboard } from '../keyboards.js';
+import { getTimeKeyboard } from '../keyboards.js';
 
 const scene = new Scenes.BaseScene<Scenes.SceneContext>(
   'setNotificationTimeScene'
@@ -20,7 +20,7 @@ scene.enter(async (ctx) => {
 
   return ctx.replyWithHTML(
     i18n.__('Please select the time for your daily notification'),
-    timeKeyboard
+    getTimeKeyboard()
   );
 });
 

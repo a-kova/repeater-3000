@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import './services/i18n.js';
 import { bot } from './services/telegram/index.js';
 import { startCronJobs } from './services/cron.js';
 
