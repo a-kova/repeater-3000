@@ -42,7 +42,7 @@ scene.on(message('text'), async (ctx) => {
   }
 
   await updateChat(chatId, {
-    notification_time_utc: toUTC(time, chat.timezone),
+    notification_time_utc: toUTC(time, chat.timezone!),
   });
 
   await ctx.reply(i18n.__('Notification time updated to %s', time));
