@@ -62,3 +62,4 @@ jobs:
             docker compose build repeater-3000
             docker compose up -d repeater-3000
             docker compose exec repeater-3000 npm run db:migrate
+            docker compose restart nginx
