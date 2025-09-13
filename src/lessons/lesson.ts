@@ -70,9 +70,9 @@ abstract class Lesson {
     await this.clearKeyboard();
 
     const lines = [
-      `<b>Word:</b> ${this.card.word}`,
-      `<b>Translation:</b> ${this.card.translation}`,
-      `<b>Example:</b> ${this.card.example}`,
+      `<b>${i18n.__('Word:')}</b> ${this.card.word}`,
+      `<b>${i18n.__('Translation:')}</b> ${this.card.translation}`,
+      `<b>${i18n.__('Example:')}</b> ${this.card.example}`,
     ];
 
     await this.ctx.replyWithHTML(lines.join('\n\n'));
