@@ -17,7 +17,7 @@ export const chatsTable = pgTable('chats', {
   original_language: varchar('original_language', { length: 2 })
     .notNull()
     .default('ru'),
-  timezone: varchar('timezone', { length: 255 }).notNull().default('UTC'),
+  timezone: varchar('timezone', { length: 255 }),
   is_active: boolean('is_active').notNull().default(true),
   is_paid: boolean('is_paid').notNull().default(true),
   notification_time_utc: varchar('notification_time_utc', {
