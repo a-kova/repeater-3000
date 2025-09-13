@@ -51,7 +51,7 @@ bot.command('remove_word', (ctx) => ctx.scene.enter('removeWordScene'));
 
 bot.command('list_words', listWordsCommand);
 
-bot.command('time', (ctx) => ctx.scene.enter('notificationTimeScene'));
+bot.command('time', (ctx) => ctx.scene.enter('setNotificationTimeScene'));
 
 bot.command('repeat_now', (ctx) => ctx.scene.enter('repeatWordsScene'));
 
