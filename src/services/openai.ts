@@ -1,8 +1,34 @@
 import { OpenAI } from 'openai';
+import { isValidTimeZone } from '../helpers/index.js';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const nanoModel = 'gpt-5-nano';
 const miniModel = 'gpt-5-mini';
+
+export async function getTimezoneForCity(city: string) {
+  const response = await openai.chat.completions.create({
+    model: nanoModel,
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are an assistant that provides accurate timezone information based on city names. You have access to a comprehensive database of world cities and their corresponding timezones.',
+      },
+      {
+        role: 'user',
+        content: `What is the IANA timezone for the city "${city}"? If the city name is ambiguous, provide the timezone for the most well-known city with that name. If the city cannot be found, respond with "Unknown".`,
+      },
+    ],
+  });
+
+  const timezone = response.choices[0].message.content?.trim();
+
+  if (!timezone || !isValidTimeZone(timezone)) {
+    throw new Error('Something went wrong');
+  }
+
+  return timezone;
+}
 
 export async function getTranslationForWord(
   word: string,

@@ -12,6 +12,16 @@ export function omitProps<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
   return result;
 }
 
+export function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    return false;
+  }
+}
+
 export function convertFSRSDataToCardData(
   data: FSRSCard
 ): Pick<Card, keyof FSRSCard> {
