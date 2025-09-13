@@ -16,6 +16,7 @@ bot.use(stage.middleware());
 
 bot.use((ctx, next) => {
   const language = ctx.from?.language_code || 'ru';
+  console.log('User language:', language);
   i18n.setLocale(language);
   return next();
 });
