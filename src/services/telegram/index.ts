@@ -15,21 +15,26 @@ bot.use(session());
 bot.use(stage.middleware());
 
 bot.use((ctx, next) => {
-  const language = ctx.from?.language_code || 'ru';
-  console.log('User language:', language);
-  i18n.setLocale(language);
+  let language = 'ru';
+
+  if (
+    ctx.from?.language_code &&
+    ['ru', 'ua'].includes(ctx.from.language_code)
+  ) {
+    language = ctx.from.language_code;
+  }
+
+  i18n.setLocale(language!);
   return next();
 });
 
 bot.command('start', async (ctx) => {
-  const language = ctx.from?.language_code || 'ru';
-
   await createChat({
     id: ctx.chat!.id,
     first_name: ctx.from!.first_name,
     last_name: ctx.from!.last_name,
     username: ctx.from!.username,
-    original_language: language,
+    original_language: i18n.getLocale(),
   });
 
   const introLines = [
