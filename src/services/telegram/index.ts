@@ -24,7 +24,7 @@ bot.use((ctx, next) => {
     language = ctx.from.language_code;
   }
 
-  i18n.setLocale(language!);
+  i18n.setLocale(language);
   return next();
 });
 
