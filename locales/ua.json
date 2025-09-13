@@ -29,8 +29,10 @@
     "Please select a timezone from the provided options": "Будь ласка, оберіть часовий пояс із запропонованих варіантів",
     "Please select the time for your daily notification": "Будь ласка, виберіть час для щоденного нагадування",
     "Please send a text message": "Будь ласка, надішліть текстове повідомлення",
+    "Please tell me your city so that I can determine your timezone": "Будь ласка, вкажіть ваше місто, щоб я міг визначити ваш часовий пояс",
     "Please use the buttons to rate the word": "Будь ласка, скористайтеся кнопками, щоб оцінити слово",
     "Remember this word?": "Пам’ятаєте це слово?",
+    "Something went wrong. Please make sure to enter a valid city name.": "Щось пішло не так. Будь ласка, переконайтеся, що ви ввели правильну назву міста.",
     "That's it! You have no more words to repeat today.": "Ось і все! Сьогодні більше немає слів для повторення",
     "The correct translation is:": "Правильний переклад:",
     "The word \"%s\" has been added!": "Слово «%s» додано!",
@@ -51,5 +53,6 @@
     "Yo! I’m Repeater 3000!": "Йо! Я Repeater 3000!",
     "You have <b>%s</b> word(s) to repeat today. Ready?": "Сьогодні у вас <b>%s</b> слів для повторення. Готові?",
     "Your pocket-sized word trainer — always ready to help!": "Ваш кишеньковий тренажер слів — завжди готовий допомогти!",
+    "Your timezone is %s": "Ваш часовий пояс: %s",
     "Your today's words:": "Ваші сьогоднішні слова:"
 }
