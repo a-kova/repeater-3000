@@ -47,7 +47,7 @@ scene.enter(async (ctx) => {
   const cards = await getCardsForToday(ctx.chat!.id);
 
   if (cards.length === 0) {
-    await ctx.reply(i18n.__('No words to repeat today.'));
+    await ctx.reply(i18n.__('No words to repeat today'));
     return ctx.scene.leave();
   }
 
