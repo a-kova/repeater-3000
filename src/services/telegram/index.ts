@@ -24,6 +24,8 @@ bot.use((ctx, next) => {
     language = ctx.from.language_code;
   }
 
+  console.log(`Setting locale to: ${language}`);
+
   i18n.setLocale(language);
   return next();
 });

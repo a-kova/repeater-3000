@@ -42,6 +42,7 @@
     "This helps me send you notifications at the right time": "Це допоможе мені надсилати сповіщення у зручний час",
     "This word already exists in your list": "Це слово вже є у вашому списку",
     "This word doesn't exist in your list": "Цього слова немає у вашому списку",
+    "Today's words:": "Сьогоднішні слова:",
     "Translate this word:": "Перекладіть це слово:",
     "Translation:": "Переклад:",
     "Turn off": "Вимкнути",
@@ -54,6 +55,5 @@
     "Yo! I’m Repeater 3000!": "Йо! Я Repeater 3000!",
     "You have <b>%s</b> word(s) to repeat today. Ready?": "Сьогодні у вас <b>%s</b> слів для повторення. Готові?",
     "Your pocket-sized word trainer — always ready to help!": "Ваш кишеньковий тренажер слів — завжди готовий допомогти!",
-    "Your timezone is %s": "Ваш часовий пояс: %s",
-    "Your today's words:": "Ваші сьогоднішні слова:"
+    "Your timezone is %s": "Ваш часовий пояс: %s"
 }

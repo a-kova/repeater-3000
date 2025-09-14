@@ -18,7 +18,7 @@ const scene = new Scenes.BaseScene<RepeatWordsSceneContext>('repeatWordsScene');
 const buildResultMessage = (lessons: Lesson[]) => {
   const messageLines = [
     i18n.__("That's it! You have no more words to repeat today."),
-    i18n.__("Your today's words:"),
+    i18n.__("Today's words:"),
   ];
 
   lessons
