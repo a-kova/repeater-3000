@@ -10,7 +10,6 @@ i18n.configure({
   locales: ['ru', 'ua'],
   defaultLocale: 'ru',
   directory: path.join(__dirname, '../../locales'),
-  objectNotation: true,
   updateFiles: false,
   autoReload: false,
   syncFiles: false,

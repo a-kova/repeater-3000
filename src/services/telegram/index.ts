@@ -2,7 +2,11 @@ import { Markup, Scenes, session, Telegraf } from 'telegraf';
 import { message } from 'telegraf/filters';
 import { scenes } from './scenes/index.js';
 import { listWordsCommand, hardestWordsCommand } from './commands/index.js';
-import { createChat, deleteChat } from '../../repositories/chat.js';
+import {
+  createChat,
+  getChatById,
+  deleteChat,
+} from '../../repositories/chat.js';
 import { onMessageHandler } from './handlers/index.js';
 import type { RepeatWordsSceneContext } from './scenes/repeatWordsScene.js';
 import i18n from '../i18n.js';
@@ -90,9 +94,7 @@ bot.catch(async (err, ctx) => {
 });
 
 async function notifyUser(chatId: number, wordsCount: number) {
-  if (wordsCount === 0) {
-    return;
-  }
+  if (wordsCount === 0) return;
 
   const message = i18n.__(
     'You have <b>%s</b> word(s) to repeat today. Ready?',

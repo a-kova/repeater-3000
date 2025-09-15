@@ -31,7 +31,7 @@ scene.on(message('text'), async (ctx) => {
   const time = ctx.message.text;
   const chat = (await getChatById(chatId))!;
 
-  if (time === 'Turn off') {
+  if (time === i18n.__('Turn off')) {
     await updateChat(chatId, { notification_time_utc: null });
     await ctx.reply(i18n.__('Daily notifications have been turned off'));
     return ctx.scene.leave();
