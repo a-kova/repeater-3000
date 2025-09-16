@@ -38,11 +38,11 @@ export default async function onMessageHandler(ctx: Scenes.SceneContext) {
     let message = i18n.__('The word "%s" has been added!', word);
 
     if (card.translation) {
-      message += `\n\n<b>${i18n.__('Translation')}:</b> ${card.translation}`;
+      message += `\n\n<b>${i18n.__('Translation:')}</b> ${card.translation}`;
     }
 
     if (card.example) {
-      message += `\n\n<b>${i18n.__('Example')}:</b> ${card.example}`;
+      message += `\n\n<b>${i18n.__('Example:')}</b> ${card.example}`;
     }
 
     return ctx.replyWithHTML(message, {

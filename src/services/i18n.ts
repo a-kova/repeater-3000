@@ -11,8 +11,6 @@ i18n.configure({
   defaultLocale: 'ru',
   directory: path.join(__dirname, '../../locales'),
   updateFiles: false,
-  autoReload: false,
-  syncFiles: false,
 });
 
 export default i18n;

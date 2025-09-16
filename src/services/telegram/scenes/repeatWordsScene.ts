@@ -1,4 +1,4 @@
-import { Scenes } from 'telegraf';
+import { Scenes, Markup } from 'telegraf';
 import { message } from 'telegraf/filters';
 import { Rating } from 'ts-fsrs';
 import { rateCard, getCardsForToday } from '../../../repositories/card.js';
@@ -47,7 +47,9 @@ scene.enter(async (ctx) => {
   const cards = await getCardsForToday(ctx.chat!.id);
 
   if (cards.length === 0) {
-    await ctx.reply(i18n.__('No words to repeat today'));
+    await ctx.reply(i18n.__('No words to repeat today'), {
+      reply_markup: { remove_keyboard: true },
+    });
     return ctx.scene.leave();
   }
 
@@ -63,7 +65,7 @@ scene.enter(async (ctx) => {
 
         if (isFinished) {
           const message = buildResultMessage(ctx.scene.session.lessons!);
-          await ctx.replyWithHTML(message);
+          await ctx.replyWithHTML(message, Markup.removeKeyboard());
           return ctx.scene.leave();
         }
 
