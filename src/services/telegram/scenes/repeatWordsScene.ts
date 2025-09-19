@@ -58,6 +58,9 @@ scene.enter(async (ctx) => {
     return ctx.scene.leave();
   }
 
+  ctx.scene.session.chat = chat;
+  ctx.scene.session.activeLessonIndex = 0;
+
   const lessons: Lesson[] = cards.map((card) =>
     createRandomLesson({
       ctx,
@@ -86,9 +89,7 @@ scene.enter(async (ctx) => {
     })
   );
 
-  ctx.scene.session.chat = chat;
   ctx.scene.session.lessons = lessons;
-  ctx.scene.session.activeLessonIndex = 0;
 
   lessons[0].start();
 });
