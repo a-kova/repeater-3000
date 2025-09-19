@@ -1,12 +1,11 @@
 import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { normaliseWord } from '../helpers/index.js';
-import i18n from '../services/i18n.js';
 
 class TypeWordForTranslationLesson extends Lesson {
   async start() {
     const { message_id } = await this.ctx.replyWithHTML(
-      `${i18n.__('Type the word for this translation:')} <b>${
+      `${this.t('Type the word for this translation:')} <b>${
         this.card.translation
       }</b>`,
       this.keyboardWithDontRememberButton()
@@ -22,9 +21,9 @@ class TypeWordForTranslationLesson extends Lesson {
     const isRight = normaliseWord(message) === normaliseWord(this.card.word);
 
     await (isRight
-      ? this.ctx.reply(`✅ ${i18n.__('Correct! Well done!')}`)
+      ? this.ctx.reply(`✅ ${this.t('Correct! Well done!')}`)
       : this.ctx.replyWithHTML(
-          `❌ ${i18n.__('Wrong')}. ${i18n.__('The correct word is:')} <b>${
+          `❌ ${this.t('Wrong')}. ${this.t('The correct word is:')} <b>${
             this.card.word
           }</b>`
         ));

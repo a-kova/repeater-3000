@@ -7,10 +7,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 i18n.configure({
-  locales: ['ru', 'ua'],
+  locales: ['ru', 'uk'],
   defaultLocale: 'ru',
   directory: path.join(__dirname, '../../locales'),
   updateFiles: false,
 });
 
-export default i18n;
+function makeT(locale: string) {
+  return (phrase: string, ...args: any[]) =>
+    i18n.__({ phrase, locale }, ...args);
+}
+
+export { makeT };

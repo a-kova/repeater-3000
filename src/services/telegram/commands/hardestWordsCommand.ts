@@ -1,15 +1,18 @@
 import { Scenes } from 'telegraf';
-import i18n from '../../i18n.js';
+import { makeT } from '../../i18n.js';
 import { getHardestCards } from '../../../repositories/card.js';
+import { getChatById } from '../../../repositories/chat.js';
 
 export default async function hardestWordsCommand(ctx: Scenes.SceneContext) {
   await ctx.sendChatAction('typing');
 
   const chatId = ctx.chat!.id;
+  const chat = await getChatById(chatId);
+  const t = makeT(chat.original_language);
   const cards = await getHardestCards(chatId);
 
   if (cards.length < 5) {
-    return await ctx.reply(i18n.__('Not enough data. Keep studying!') + ' 📚');
+    return await ctx.reply(t('Not enough data. Keep studying!') + ' 📚');
   }
 
   const list = cards.map(

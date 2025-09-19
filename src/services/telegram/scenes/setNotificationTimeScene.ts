@@ -2,7 +2,7 @@ import { Scenes } from 'telegraf';
 import { message } from 'telegraf/filters';
 import { getChatById, updateChat } from '../../../repositories/chat.js';
 import { toUTC } from '../../../helpers/index.js';
-import i18n from '../../i18n.js';
+import { makeT } from '../../i18n.js';
 import { getTimeKeyboard } from '../keyboards.js';
 
 const scene = new Scenes.BaseScene<Scenes.SceneContext>(
@@ -12,15 +12,16 @@ const scene = new Scenes.BaseScene<Scenes.SceneContext>(
 scene.enter(async (ctx) => {
   await ctx.sendChatAction('typing');
 
-  const chat = (await getChatById(ctx.chat!.id))!;
+  const chat = await getChatById(ctx.chat!.id);
+  const t = makeT(chat.original_language);
 
   if (!chat.timezone) {
     return ctx.scene.enter('setTimezoneScene');
   }
 
   return ctx.replyWithHTML(
-    i18n.__('Please select the time for your daily notification'),
-    getTimeKeyboard()
+    t('Please select the time for your daily notification'),
+    getTimeKeyboard(chat.original_language)
   );
 });
 
@@ -29,23 +30,24 @@ scene.on(message('text'), async (ctx) => {
 
   const chatId = ctx.chat.id;
   const time = ctx.message.text;
-  const chat = (await getChatById(chatId))!;
+  const chat = await getChatById(chatId);
+  const t = makeT(chat.original_language);
 
-  if (time === i18n.__('Turn off')) {
+  if (time === t('Turn off')) {
     await updateChat(chatId, { notification_time_utc: null });
-    await ctx.reply(i18n.__('Daily notifications have been turned off'));
+    await ctx.reply(t('Daily notifications have been turned off'));
     return ctx.scene.leave();
   }
 
   if (!/^\d{2}:\d{2}$/.test(time)) {
-    return ctx.reply(i18n.__('Please enter a valid time in HH:MM format'));
+    return ctx.reply(t('Please enter a valid time in HH:MM format'));
   }
 
   await updateChat(chatId, {
     notification_time_utc: toUTC(time, chat.timezone!),
   });
 
-  await ctx.reply(i18n.__('Notification time updated to %s', time));
+  await ctx.reply(t('Notification time updated to %s', time));
   return ctx.scene.leave();
 });
 

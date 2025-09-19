@@ -1,12 +1,11 @@
 import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { checkWordUsageInSentence } from '../services/openai.js';
-import i18n from '../services/i18n.js';
 
 class MakeSentenceLesson extends Lesson {
   async start(): Promise<void> {
     const { message_id } = await this.ctx.replyWithHTML(
-      `${i18n.__('Make a sentence with the word')} <b>${this.card.word}</b>`,
+      `${this.t('Make a sentence with the word')} <b>${this.card.word}</b>`,
       this.keyboardWithDontRememberButton()
     );
 
@@ -24,7 +23,7 @@ class MakeSentenceLesson extends Lesson {
 
     await this.ctx.replyWithHTML(
       `${
-        isCorrect ? `✅ ${i18n.__('Correct')}` : `❌ ${i18n.__('Wrong')}`
+        isCorrect ? `✅ ${this.t('Correct')}` : `❌ ${this.t('Wrong')}`
       } \n\n ${comment}`
     );
 

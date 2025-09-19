@@ -1,7 +1,7 @@
 import { Markup } from 'telegraf';
 import { Rating } from 'ts-fsrs';
 import { RepeatWordsSceneContext } from '../services/telegram/index.js';
-import i18n from '../services/i18n.js';
+import { makeT } from '../services/i18n.js';
 import { Card } from '../types.js';
 
 abstract class Lesson {
@@ -10,6 +10,8 @@ abstract class Lesson {
   public readonly card: Card;
 
   protected questionMessageId?: number;
+
+  protected t: ReturnType<typeof makeT>;
 
   protected onFinish: (rating: Rating) => Promise<void>;
 
@@ -26,6 +28,7 @@ abstract class Lesson {
   }) {
     this.ctx = ctx;
     this.card = card;
+    this.t = makeT(ctx.scene.session.chat!.original_language);
 
     this.onFinish = async (rating: Rating) => {
       this.rating = rating;
@@ -43,7 +46,7 @@ abstract class Lesson {
 
   protected keyboardWithDontRememberButton() {
     return Markup.inlineKeyboard([
-      Markup.button.callback(`❌ ${i18n.__("Don't remember")}`, 'dontRemember'),
+      Markup.button.callback(`❌ ${this.t("Don't remember")}`, 'dontRemember'),
     ]);
   }
 
@@ -70,9 +73,9 @@ abstract class Lesson {
     await this.clearKeyboard();
 
     const lines = [
-      `<b>${i18n.__('Word:')}</b> ${this.card.word}`,
-      `<b>${i18n.__('Translation:')}</b> ${this.card.translation}`,
-      `<b>${i18n.__('Example:')}</b> ${this.card.example}`,
+      `<b>${this.t('Word:')}</b> ${this.card.word}`,
+      `<b>${this.t('Translation:')}</b> ${this.card.translation}`,
+      `<b>${this.t('Example:')}</b> ${this.card.example}`,
     ];
 
     await this.ctx.replyWithHTML(lines.join('\n\n'));

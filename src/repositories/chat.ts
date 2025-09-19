@@ -4,9 +4,15 @@ import { chatsTable, db } from '../services/db/index.js';
 type ChatInsertData = InferInsertModel<typeof chatsTable>;
 
 export async function getChatById(chatId: number) {
-  return await db.query.chatsTable.findFirst({
+  const chat = await db.query.chatsTable.findFirst({
     where: (table, { eq }) => eq(table.id, chatId),
   });
+
+  if (!chat) {
+    throw new Error('Chat not found. Try running /start command');
+  }
+
+  return chat;
 }
 
 export async function createChat(data: ChatInsertData) {

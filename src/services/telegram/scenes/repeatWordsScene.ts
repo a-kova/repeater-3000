@@ -2,11 +2,14 @@ import { Scenes, Markup } from 'telegraf';
 import { message } from 'telegraf/filters';
 import { Rating } from 'ts-fsrs';
 import { rateCard, getCardsForToday } from '../../../repositories/card.js';
+import { getChatById } from '../../../repositories/chat.js';
+import type { Chat } from '../../../types.js';
 import Lesson from '../../../lessons/lesson.js';
 import { createRandomLesson } from '../../../lessons/index.js';
-import i18n from '../../i18n.js';
+import { makeT } from '../../i18n.js';
 
 interface SessionData extends Scenes.SceneSessionData {
+  chat?: Chat;
   lessons?: Lesson[];
   activeLessonIndex?: number;
 }
@@ -15,10 +18,10 @@ export type RepeatWordsSceneContext = Scenes.SceneContext<SessionData>;
 
 const scene = new Scenes.BaseScene<RepeatWordsSceneContext>('repeatWordsScene');
 
-const buildResultMessage = (lessons: Lesson[]) => {
+const buildResultMessage = (lessons: Lesson[], t: (s: string) => string) => {
   const messageLines = [
-    i18n.__("That's it! You have no more words to repeat today."),
-    i18n.__("Today's words:"),
+    t("That's it! You have no more words to repeat today."),
+    t("Today's words:"),
   ];
 
   lessons
@@ -44,10 +47,12 @@ const buildResultMessage = (lessons: Lesson[]) => {
 };
 
 scene.enter(async (ctx) => {
-  const cards = await getCardsForToday(ctx.chat!.id);
+  const chat = await getChatById(ctx.chat!.id);
+  const t = makeT(chat.original_language);
+  const cards = await getCardsForToday(chat.id);
 
   if (cards.length === 0) {
-    await ctx.reply(i18n.__('No words to repeat today'), {
+    await ctx.reply(t('No words to repeat today'), {
       reply_markup: { remove_keyboard: true },
     });
     return ctx.scene.leave();
@@ -64,7 +69,7 @@ scene.enter(async (ctx) => {
         );
 
         if (isFinished) {
-          const message = buildResultMessage(ctx.scene.session.lessons!);
+          const message = buildResultMessage(ctx.scene.session.lessons!, t);
           await ctx.replyWithHTML(message, Markup.removeKeyboard());
           return ctx.scene.leave();
         }
@@ -81,6 +86,7 @@ scene.enter(async (ctx) => {
     })
   );
 
+  ctx.scene.session.chat = chat;
   ctx.scene.session.lessons = lessons;
   ctx.scene.session.activeLessonIndex = 0;
 

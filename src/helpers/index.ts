@@ -1,5 +1,5 @@
 import { Card as FSRSCard } from 'ts-fsrs';
-import { fromZonedTime } from 'date-fns-tz';
+import { fromZonedTime, formatInTimeZone } from 'date-fns-tz';
 import type { Card } from '../types.js';
 
 export function omitProps<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
@@ -73,22 +73,10 @@ export function normaliseWord(word: string): string {
   return word.toLowerCase().replace(/^(to|a|an)\s+/, '');
 }
 
-export function toUTC(timeHHmm: string, timezone: string) {
-  const [hours, minutes] = timeHHmm.split(':').map(Number);
+export function toUTC(timeHHmm: string, timezone: string): string {
+  const targetYMD = formatInTimeZone(new Date(), timezone, 'yyyy-MM-dd');
+  const wallClock = new Date(`${targetYMD}T${timeHHmm}:00`);
+  const utcDate = fromZonedTime(wallClock, timezone);
 
-  const now = new Date();
-  const localDate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    hours,
-    minutes
-  );
-
-  const utcDate = fromZonedTime(localDate, timezone);
-
-  const hh = String(utcDate.getUTCHours()).padStart(2, '0');
-  const mm = String(utcDate.getUTCMinutes()).padStart(2, '0');
-
-  return `${hh}:${mm}`;
+  return formatInTimeZone(utcDate, 'UTC', 'HH:mm');
 }

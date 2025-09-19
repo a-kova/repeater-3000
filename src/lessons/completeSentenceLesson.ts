@@ -2,7 +2,6 @@ import { Rating } from 'ts-fsrs';
 import Lesson from './lesson.js';
 import { normaliseWord } from '../helpers/index.js';
 import { createSentenceWithEmptySpace } from '../services/openai.js';
-import i18n from '../services/i18n.js';
 
 class CompleteSentenceLesson extends Lesson {
   async start(): Promise<void> {
@@ -10,7 +9,7 @@ class CompleteSentenceLesson extends Lesson {
     const sentence = await createSentenceWithEmptySpace(normalisedWord);
 
     const { message_id } = await this.ctx.replyWithHTML(
-      `${i18n.__('Enter missing word:')} \n\n <b>${sentence}</b>`,
+      `${this.t('Enter missing word:')} \n\n <b>${sentence}</b>`,
       this.keyboardWithDontRememberButton()
     );
 
@@ -24,11 +23,9 @@ class CompleteSentenceLesson extends Lesson {
     const isCorrect = normaliseWord(message) === normaliseWord(this.card.word);
 
     await (isCorrect
-      ? this.ctx.reply(`✅ ${i18n.__('Correct! Well done!')}`)
+      ? this.ctx.reply(`✅ ${this.t('Correct! Well done!')}`)
       : this.ctx.replyWithHTML(
-          `❌ ${i18n.__('Wrong. The correct word is:')} <b>${
-            this.card.word
-          }</b>`
+          `❌ ${this.t('Wrong. The correct word is:')} <b>${this.card.word}</b>`
         ));
 
     await this.onFinish(isCorrect ? Rating.Good : Rating.Again);
