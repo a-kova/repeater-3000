@@ -22,9 +22,9 @@ class MakeSentenceLesson extends Lesson {
     );
 
     await this.ctx.replyWithHTML(
-      `${
-        isCorrect ? `✅ ${this.t('Correct')}` : `❌ ${this.t('Wrong')}`
-      } \n\n ${comment}`
+      isCorrect
+        ? `✅ ${this.t('Correct')}`
+        : `❌ ${this.t('Wrong')} \n\n ${comment}`
     );
 
     await this.onFinish(isCorrect ? Rating.Good : Rating.Again);

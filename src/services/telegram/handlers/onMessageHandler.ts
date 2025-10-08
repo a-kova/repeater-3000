@@ -3,6 +3,7 @@ import { cardExists, createCardForChat } from '../../../repositories/card.js';
 import { getChatById } from '../../../repositories/chat.js';
 import { makeT } from '../../i18n.js';
 
+/* This handler processes incoming text messages to add new words to the user's vocabulary list. */
 export default async function onMessageHandler(ctx: Scenes.SceneContext) {
   await ctx.sendChatAction('typing');
 

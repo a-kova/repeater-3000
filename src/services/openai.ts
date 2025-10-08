@@ -92,7 +92,7 @@ export async function getTranslationForSentence(
   targetLanguage = 'ru'
 ): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: miniModel,
+    model: nanoModel,
     messages: [
       {
         role: 'system',
