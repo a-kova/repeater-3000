@@ -47,8 +47,8 @@ class RateWordLesson extends Lesson {
     }
 
     const ratingValue = parseInt(action.split(':')[1]);
-    await this.clearKeyboard();
-    await this.onFinish(ratingValue);
+
+    await Promise.all([this.clearKeyboard(), this.onFinish(ratingValue)]);
   }
 }
 

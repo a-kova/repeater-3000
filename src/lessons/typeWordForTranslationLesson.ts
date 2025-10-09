@@ -15,20 +15,18 @@ class TypeWordForTranslationLesson extends Lesson {
   }
 
   async onText(message: string) {
-    await this.ctx.sendChatAction('typing');
-    await this.clearKeyboard();
+    const isCorrect = normaliseWord(message) === normaliseWord(this.card.word);
+    const replyMessage = isCorrect
+      ? `✅ ${this.t('Correct! Well done!')}`
+      : `❌ ${this.t('Wrong. The correct word is:')} <b>${this.card.word}</b>`;
 
-    const isRight = normaliseWord(message) === normaliseWord(this.card.word);
+    await Promise.all([
+      this.ctx.sendChatAction('typing'),
+      this.clearKeyboard(),
+      this.ctx.replyWithHTML(replyMessage),
+    ]);
 
-    await (isRight
-      ? this.ctx.reply(`✅ ${this.t('Correct! Well done!')}`)
-      : this.ctx.replyWithHTML(
-          `❌ ${this.t('Wrong')}. ${this.t('The correct word is:')} <b>${
-            this.card.word
-          }</b>`
-        ));
-
-    await this.onFinish(isRight ? Rating.Good : Rating.Again);
+    this.onFinish(isCorrect ? Rating.Good : Rating.Again);
   }
 }
 

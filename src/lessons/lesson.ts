@@ -70,15 +70,16 @@ abstract class Lesson {
       throw new Error(`Unknown action: ${action}`);
     }
 
-    await this.clearKeyboard();
-
     const lines = [
       `<b>${this.t('Word:')}</b> ${this.card.word}`,
       `<b>${this.t('Translation:')}</b> ${this.card.translation}`,
       `<b>${this.t('Example:')}</b> ${this.card.example}`,
     ];
 
-    await this.ctx.replyWithHTML(lines.join('\n\n'));
+    await Promise.all([
+      this.clearKeyboard(),
+      this.ctx.replyWithHTML(lines.join('\n\n')),
+    ]);
 
     await this.onFinish(Rating.Again);
   }

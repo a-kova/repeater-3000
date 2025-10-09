@@ -13,13 +13,11 @@ class MakeSentenceLesson extends Lesson {
   }
 
   async onText(message: string) {
-    await this.ctx.sendChatAction('typing');
-    await this.clearKeyboard();
-
-    const { isCorrect, comment } = await checkWordUsageInSentence(
-      this.card.word,
-      message
-    );
+    const [{ isCorrect, comment }] = await Promise.all([
+      checkWordUsageInSentence(this.card.word, message),
+      this.ctx.sendChatAction('typing'),
+      this.clearKeyboard(),
+    ]);
 
     await this.ctx.replyWithHTML(
       isCorrect

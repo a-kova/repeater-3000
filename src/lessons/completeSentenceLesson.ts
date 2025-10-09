@@ -17,16 +17,15 @@ class CompleteSentenceLesson extends Lesson {
   }
 
   async onText(message: string) {
-    await this.ctx.sendChatAction('typing');
-    await this.clearKeyboard();
-
     const isCorrect = normaliseWord(message) === normaliseWord(this.card.word);
+    const replyMessage = isCorrect
+      ? `✅ ${this.t('Correct! Well done!')}`
+      : `❌ ${this.t('Wrong. The correct word is:')} <b>${this.card.word}</b>`;
 
-    await (isCorrect
-      ? this.ctx.reply(`✅ ${this.t('Correct! Well done!')}`)
-      : this.ctx.replyWithHTML(
-          `❌ ${this.t('Wrong. The correct word is:')} <b>${this.card.word}</b>`
-        ));
+    await Promise.all([
+      this.clearKeyboard(),
+      this.ctx.replyWithHTML(replyMessage),
+    ]);
 
     await this.onFinish(isCorrect ? Rating.Good : Rating.Again);
   }

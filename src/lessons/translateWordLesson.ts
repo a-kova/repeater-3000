@@ -15,18 +15,18 @@ class TranslateWordLesson extends Lesson {
   }
 
   async onText(message: string) {
-    await this.ctx.sendChatAction('typing');
-    await this.clearKeyboard();
-
-    const isCorrect =
+    const [isCorrect] = await Promise.all([
       message === this.card.translation ||
-      (await checkTranslation(this.card.word, message));
+        checkTranslation(this.card.word, message),
+      this.ctx.sendChatAction('typing'),
+      this.clearKeyboard(),
+    ]);
 
     if (isCorrect) {
-      await this.ctx.reply(`✅ ${this.t('Correct')}`);
-      await this.onFinish(Rating.Good);
+      this.ctx.reply(`✅ ${this.t('Correct')}`);
+      this.onFinish(Rating.Good);
     } else {
-      await this.ctx.replyWithHTML(
+      this.ctx.replyWithHTML(
         `❌ ${this.t('Wrong')}. ${this.t('The correct translation is:')} <b>${
           this.card.translation
         }</b>`

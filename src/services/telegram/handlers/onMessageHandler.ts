@@ -5,7 +5,7 @@ import { makeT } from '../../i18n.js';
 
 /* This handler processes incoming text messages to add new words to the user's vocabulary list. */
 export default async function onMessageHandler(ctx: Scenes.SceneContext) {
-  await ctx.sendChatAction('typing');
+  ctx.sendChatAction('typing');
 
   const chatId = ctx.chat!.id;
   const message = ctx.message;
