@@ -79,6 +79,15 @@ bot.action('postpone_repeat', async (ctx) => {
 });
 
 bot.action(/add_word:(.+)/, async (ctx) => {
+  if (ctx.updateType === 'callback_query' && ctx.callbackQuery.message) {
+    const messageId = ctx.callbackQuery.message.message_id;
+    const chatId = ctx.callbackQuery.message.chat.id;
+
+    ctx.telegram.editMessageReplyMarkup(chatId, messageId, undefined, {
+      inline_keyboard: [],
+    });
+  }
+
   const wordInfoId = ctx.match[1];
   return addWordHandler(parseInt(wordInfoId), ctx);
 });
