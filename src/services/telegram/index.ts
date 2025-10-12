@@ -7,7 +7,7 @@ import {
   deleteChat,
   getChatById,
 } from '../../repositories/chat.js';
-import { onMessageHandler } from './handlers/index.js';
+import { addWordHandler, onMessageHandler } from './handlers/index.js';
 import type { RepeatWordsSceneContext } from './scenes/repeatWordsScene.js';
 import { makeT } from '../i18n.js';
 
@@ -76,6 +76,11 @@ bot.action('postpone_repeat', async (ctx) => {
   const t = makeT(chat.original_language);
 
   return ctx.reply(t('Okay, I will remind you tomorrow'));
+});
+
+bot.action(/add_word:(.+)/, async (ctx) => {
+  const wordInfoId = ctx.match[1];
+  return addWordHandler(parseInt(wordInfoId), ctx);
 });
 
 bot.on(message('text'), onMessageHandler);

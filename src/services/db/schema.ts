@@ -33,8 +33,8 @@ export const cardsTable = pgTable(
       .notNull()
       .references(() => chatsTable.id, { onDelete: 'cascade' }),
     word: varchar('word', { length: 255 }).notNull(),
-    translation: varchar('translation', { length: 255 }),
-    example: text('example'),
+    translation: varchar('translation', { length: 255 }).notNull(),
+    example: text('example').notNull(),
     example_translation: text('example_translation'),
     due: timestamp('due').notNull(),
     stability: numeric('stability').notNull(),
@@ -53,3 +53,14 @@ export const cardsTable = pgTable(
     index('chat_id_due_idx').on(table.chat_id, table.due),
   ]
 );
+
+export const wordsInfoTable = pgTable('words_info', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  word: varchar('word', { length: 255 }).notNull().unique(),
+  original_language: varchar('original_language', { length: 2 }).notNull(),
+  translation: varchar('translation', { length: 255 }).notNull(),
+  example: text('example').notNull(),
+  base_form: varchar('base_form', { length: 255 }).notNull(),
+  importance: integer('importance').notNull(),
+  created_at: timestamp('created_at').defaultNow(),
+});

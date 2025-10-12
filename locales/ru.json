@@ -1,6 +1,8 @@
 {
+    "Add to my list": "Добавить в мой список",
     "An error occurred while processing your request": "Произошла ошибка при обработке вашего запроса",
     "An error occurred, please try again later": "Произошла ошибка, попробуйте позже",
+    "Base form:": "Начальная форма:",
     "Bye! I will not bother you anymore": "Пока! Больше не буду вас беспокоить",
     "Correct": "Верно",
     "Correct! Well done!": "Правильно! Отличная работа!",
@@ -12,6 +14,7 @@
     "Great! Now please select your timezone": "Отлично! Теперь выберите свой часовой пояс",
     "Hardly": "С трудом",
     "Here’s what I can do for you:": "Вот что я могу для вас сделать:",
+    "Importance:": "Важность изучения:",
     "I’m here to help you learn new words and improve your vocabulary.": "Я помогу вам выучить новые слова и улучшить словарный запас.",
     "Just send me a word to get rolling. And don’t forget /time to set your reminder!": "Просто отправьте мне слово на английском, чтобы начать. И не забудьте /time, чтобы установить напоминание!",
     "Make a sentence with the word": "Составьте предложение с этим словом",

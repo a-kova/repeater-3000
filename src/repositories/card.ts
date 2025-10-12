@@ -2,11 +2,6 @@ import { and, desc, eq, sql, InferInsertModel } from 'drizzle-orm';
 import { Rating, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs';
 import { cardsTable, db } from '../services/db/index.js';
 import {
-  getTranslationForWord,
-  getTranslationForSentence,
-  getUsageExampleForWord,
-} from '../services/openai.js';
-import {
   getFSRSDataFromCardData,
   convertFSRSDataToCardData,
 } from '../helpers/index.js';
@@ -20,37 +15,6 @@ const f = fsrs(
     enable_short_term: false,
   })
 );
-
-async function populatePaidData(
-  data: CardInsertData,
-  originalLanguage: string
-): Promise<CardInsertData> {
-  const existingCard = await db.query.cardsTable.findFirst({
-    where: (table, { and, eq, isNotNull }) =>
-      and(
-        eq(table.word, data.word),
-        isNotNull(table.translation),
-        isNotNull(table.example)
-      ),
-    columns: { translation: true, example: true },
-  });
-
-  if (existingCard) {
-    return { ...data, ...existingCard };
-  }
-
-  const [translation, example] = await Promise.all([
-    getTranslationForWord(data.word, originalLanguage),
-    getUsageExampleForWord(data.word),
-  ]);
-
-  const example_translation = await getTranslationForSentence(
-    example!,
-    originalLanguage
-  );
-
-  return { ...data, translation, example, example_translation };
-}
 
 export async function getAllCardsForChat(chatId: number) {
   return await db.query.cardsTable.findMany({
@@ -71,7 +35,7 @@ export async function cardExists(data: Pick<Card, 'word' | 'chat_id'>) {
 }
 
 export async function createCardForChat(
-  data: Partial<CardInsertData>,
+  data: Pick<CardInsertData, 'word' | 'translation' | 'example'>,
   chat: Chat
 ) {
   const fsrsData = createEmptyCard(new Date());
@@ -85,10 +49,6 @@ export async function createCardForChat(
     last_review: fsrsData.last_review || null,
     chat_id: chat.id,
   };
-
-  if (chat.is_paid) {
-    insertData = await populatePaidData(insertData, chat.original_language);
-  }
 
   const res = await db.insert(cardsTable).values(insertData).returning();
 

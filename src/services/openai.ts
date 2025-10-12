@@ -1,6 +1,13 @@
 import { OpenAI } from 'openai';
 import { isValidTimeZone } from '../helpers/index.js';
 
+type WordInfo = {
+  base_form: string;
+  importance: number;
+  translations: string[];
+  example: string;
+};
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const nanoModel = 'gpt-5-nano';
 const miniModel = 'gpt-5-mini';
@@ -28,63 +35,6 @@ export async function getTimezoneForCity(city: string) {
   }
 
   return timezone;
-}
-
-export async function getTranslationForWord(
-  word: string,
-  targetLanguage: string = 'ru'
-): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: nanoModel,
-    messages: [
-      {
-        role: 'system',
-        content:
-          'You are a strict bilingual dictionary. Only return direct, most common translations for English words, not synonyms or stylistic variants.',
-      },
-      {
-        role: 'user',
-        content: `Translate the English word "${word}" to ${targetLanguage}. Only return the most common equivalents (no synonyms or variations). Limit to 2–3 words maximum. Respond in JSON format using the return_translations tool.`,
-      },
-    ],
-    tools: [
-      {
-        type: 'function',
-        function: {
-          name: 'return_translations',
-          description:
-            'Returns possible translations for a given English word.',
-          parameters: {
-            type: 'object',
-            properties: {
-              translations: {
-                type: 'array',
-                items: { type: 'string' },
-              },
-            },
-            required: ['translations'],
-          },
-        },
-      },
-    ],
-    tool_choice: {
-      type: 'function',
-      function: { name: 'return_translations' },
-    },
-  });
-
-  const toolCall = response.choices[0].message.tool_calls?.[0];
-
-  if (
-    !toolCall ||
-    toolCall.type !== 'function' ||
-    toolCall.function.name !== 'return_translations'
-  ) {
-    throw new Error('Unexpected tool call format');
-  }
-
-  const args = JSON.parse(toolCall.function.arguments);
-  return (args.translations as string[]).join(', ');
 }
 
 export async function getTranslationForSentence(
@@ -140,25 +90,6 @@ export async function getTranslationForSentence(
   }
 
   return JSON.parse(toolCall.function.arguments).translation;
-}
-
-export async function getUsageExampleForWord(word: string) {
-  const response = await openai.chat.completions.create({
-    model: nanoModel,
-    messages: [
-      {
-        role: 'system',
-        content:
-          'You are an assistant that provides short example sentences using English words.',
-      },
-      {
-        role: 'user',
-        content: `Give one clear, natural usage example of the word "${word}" in a sentence. Do not include any explanation.`,
-      },
-    ],
-  });
-
-  return response.choices[0].message.content?.trim();
 }
 
 export async function createSentenceWithEmptySpace(
@@ -255,7 +186,7 @@ export async function checkTranslation(
   translation: string
 ): Promise<boolean> {
   const response = await openai.chat.completions.create({
-    model: miniModel,
+    model: nanoModel,
     messages: [
       {
         role: 'system',
@@ -271,4 +202,78 @@ export async function checkTranslation(
 
   const answer = response.choices[0].message.content?.trim().toLowerCase();
   return answer?.includes('yes') ?? false;
+}
+
+export async function getWordInfo(word: string, translateTo: string) {
+  const response = await openai.chat.completions.create({
+    model: miniModel,
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are an English language assistant. Provide comprehensive information about English words for language learning purposes.',
+      },
+      {
+        role: 'user',
+        content: `For the English word "${word}":
+1. Determine its base/lemma form (add "a/an" for countable nouns, "to" for verbs)
+2. Rate its learning importance (1-10, where 10 = essential daily vocabulary)
+3. Provide 2-3 most common translations to ${translateTo}
+4. Create a simple, clear usage example
+Use the return_word_info tool to respond.`,
+      },
+    ],
+    tools: [
+      {
+        type: 'function',
+        function: {
+          name: 'return_word_info',
+          description:
+            'Returns brief definition, common translations, and usage example for a given English word.',
+          parameters: {
+            type: 'object',
+            properties: {
+              base_form: {
+                type: 'string',
+                description:
+                  'The base form of the word (lemma). Add article "a" or "an" if it is a noun and "to" if it is a verb.',
+              },
+              importance: {
+                type: 'number',
+                description:
+                  'Learning priority from 1-10: 1-3=specialized/rare, 4-6=intermediate, 7-8=common, 9-10=essential daily vocabulary',
+              },
+              translations: {
+                type: 'array',
+                items: { type: 'string' },
+                description: `Most common translations to ${translateTo} language (2-3 words maximum).`,
+              },
+              example: {
+                type: 'string',
+                description:
+                  'A simple, clear sentence using the word in its most common meaning. Keep it under 15 words and use everyday language.',
+              },
+            },
+            required: ['base_form', 'importance', 'translations', 'example'],
+          },
+        },
+      },
+    ],
+    tool_choice: {
+      type: 'function',
+      function: { name: 'return_word_info' },
+    },
+  });
+
+  const toolCall = response.choices[0].message.tool_calls?.[0];
+
+  if (
+    !toolCall ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'return_word_info'
+  ) {
+    throw new Error('Unexpected tool call format');
+  }
+
+  return JSON.parse(toolCall.function.arguments) as WordInfo;
 }

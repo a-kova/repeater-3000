@@ -1,9 +1,8 @@
 import { Scenes } from 'telegraf';
-import { cardExists, createCardForChat } from '../../../repositories/card.js';
 import { getChatById } from '../../../repositories/chat.js';
+import { getOrCreateWordInfo } from '../../../repositories/wordInfo.js';
 import { makeT } from '../../i18n.js';
 
-/* This handler processes incoming text messages to add new words to the user's vocabulary list. */
 export default async function onMessageHandler(ctx: Scenes.SceneContext) {
   ctx.sendChatAction('typing');
 
@@ -28,30 +27,25 @@ export default async function onMessageHandler(ctx: Scenes.SceneContext) {
     );
   }
 
-  try {
-    const exists = await cardExists({ word, chat_id: chatId });
+  const wordInfo = await getOrCreateWordInfo(word, chat!.original_language);
 
-    if (exists) {
-      return ctx.reply(t('This word already exists in your list'));
-    }
+  const messageLines = [
+    `<b>${t('Base form:')}</b> ${wordInfo.base_form}`,
+    `<b>${t('Importance:')}</b> ${wordInfo.importance}/10`,
+    `<b>${t('Translation:')}</b> ${wordInfo.translation}`,
+    `<b>${t('Example:')}</b> ${wordInfo.example}`,
+  ];
 
-    const card = await createCardForChat({ word }, chat!);
-
-    let message = t('The word "%s" has been added!', word);
-
-    if (card.translation) {
-      message += `\n\n<b>${t('Translation:')}</b> ${card.translation}`;
-    }
-
-    if (card.example) {
-      message += `\n\n<b>${t('Example:')}</b> ${card.example}`;
-    }
-
-    return ctx.replyWithHTML(message, {
-      reply_markup: { remove_keyboard: true },
-    });
-  } catch (error) {
-    console.error('Error adding word:', error);
-    return ctx.reply(t('An error occurred, please try again later'));
-  }
+  return ctx.replyWithHTML(messageLines.join('\n'), {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: t('Add to my list'),
+            callback_data: `add_word:${wordInfo.id}`,
+          },
+        ],
+      ],
+    },
+  });
 }
